@@ -32,6 +32,9 @@ for word in args.input_file:
         syllable_list.append(re.search(pattern = r"(t[sś]|[^\s\d])[aeiou][nm]?$", string = word).group())
 
         word = word[:-len(syllable_list[-1])]
+    
+    # reverse because the syllables were added backwards
+    syllable_list.reverse()
 
     for i in range(len(syllable_list)):
 
@@ -43,6 +46,6 @@ for word in args.input_file:
     else:
         syllable_list[0] = re.sub(r"([aeiou])", r"'\1", syllable_list[0])
 
-    stressed_words.append("".join(syllable_list[::-1]))
+    stressed_words.append("".join(syllable_list))
 
 args.output_file.write("\n".join(stressed_words))
