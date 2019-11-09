@@ -1,7 +1,7 @@
 #!/bin/python3
 
 import argparse
-import re
+import regex as re
 from typing import List, Dict, Tuple
 
 def raw_str(s: str):

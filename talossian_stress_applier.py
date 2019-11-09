@@ -43,6 +43,6 @@ for word in args.input_file:
     else:
         syllable_list[0] = re.sub(r"([aeiou])", r"'\1", syllable_list[0])
 
-    stressed_words.append("".join(syllable_list))
+    stressed_words.append("".join(syllable_list[::-1]))
 
 args.output_file.write("\n".join(stressed_words))
