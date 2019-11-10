@@ -1,6 +1,7 @@
 #!/bin/python3
 
 import argparse
+# this library works much better with unicode than the built in re
 import regex as re
 from typing import List, Dict, Tuple
 
@@ -27,15 +28,19 @@ def get_regex(rule_str: str, substitutions: dict) -> Tuple[str, str]:
     if env_str != "" and env_str != "_":
         if env_str.startswith("_"):
             befores = ""
+            # take everything but the underscore
             afters = env_str[1:]
+
         elif env_str.endswith("_"):
+            # take everything but the underscore
             befores = env_str[:-1]
             afters = ""
+
         else:
             befores, afters = env_str.split("_")
 
         # add the environment criteria as lookaround non-capturing groups
-        # e.g. we don't want s/z/V_V to capture wither of the vowels
+        # e.g. we don't want s/z/V_V to capture either of the vowels
         if befores != "":
             target_str = "(?<=" + befores + ")" + target_str 
 
