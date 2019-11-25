@@ -107,10 +107,12 @@ def apply_rules(rule_list: List[str], word_list: List[str], substitutions: dict)
 
     return new_words
 
+
 # a phonological class if defined on a single line in the input file, and is of the form
 # ID=phonemes, e.g.
 # V=aeiou
-# it is reccommended that you 
+# or, digraphs, trigraphs, etc. can be defined and treated as single units by comma separation, e.g
+# C=t,th,d,dh,f 
 def get_class_regex(class_str: str) -> Dict[str, str]:
     class_str = class_str.strip()
 
@@ -119,44 +121,60 @@ def get_class_regex(class_str: str) -> Dict[str, str]:
     assert(re.fullmatch(r"[^#=]+=[^#=]+", class_str))
     symbol, sounds = class_str.split('=')
 
-    sounds = '[' + re.escape(sounds) + ']'
+    # handle the case with comma separation
+    # requires the use of (str1|str2) regex syntax
+    if ',' in sounds:
+        sound_list = []
+        # escape and regex characters that might occur in each sound string
+        for sound in sounds.split(','):
+            sound_list.append(re.escape(sound))
+        
+        return_regex = '(' + '|'.join(sound_list) + ')'
 
-    return {symbol: sounds}
+    # handle the simpler case of single-letter phonemes
+    # can take advantage of [abcd]  syntax
+    else:
+        return_regex = '[' + re.escape(sounds) + ']'
+
+    return {symbol: return_regex}
 
 
-parser = argparse.ArgumentParser()
+if __name__ == '__main__':
 
-parser.add_argument("lex_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
-parser.add_argument("rules_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
-parser.add_argument("-o", "--out", action = "store", type = argparse.FileType("w", encoding = "utf-8"), dest = "out_file", default = None)
-parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"), dest = "phon_classes_file", default = None)
-parser.add_argument("--null_strings", action = "store", type = list, dest = "null_strings", default = ["#N/A", ""])
+    parser = argparse.ArgumentParser()
 
-args = parser.parse_args()
+    parser.add_argument("lex_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
+    parser.add_argument("rules_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
+    parser.add_argument("-o", "--out", action = "store", type = argparse.FileType("w", encoding = "utf-8"), dest = "out_file", default = None)
+    parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"), dest = "phon_classes_file", default = None)
+    parser.add_argument("--null_strings", action = "store", type = list, dest = "null_strings", default = ["#N/A", ""])
 
-lexicon = [word for word in filter(lambda w: w not in args.null_strings, [line.strip() for line in args.lex_file])]
+    args = parser.parse_args()
 
-rule_list = [rule.strip() for rule in args.rules_file]
+    lexicon = [word for word in filter(lambda w: w not in args.null_strings, [line.strip() for line in args.lex_file])]
 
-# substitutions required to match regex syntax
-substitutions = {'#': r'\b'}
+    rule_list = [rule.strip() for rule in args.rules_file]
 
-if args.phon_classes_file:
-    class_counter = 0
-    
-    for p_class in args.phon_classes_file:
-        class_counter += 1
+    # substitutions required to match regex syntax
+    substitutions = {'#': r'\b'}
 
-        try:
-            substitutions.update(get_class_regex(p_class))
+    if args.phon_classes_file:
+        class_line_counter = 0
+        
+        for p_class in args.phon_classes_file:
+            class_line_counter += 1
 
-        except AssertionError:
-            error_str = "Malformed rule at line " + str(class_counter) +  "\ncontinue? y/N"
-            error_dialog(error_str)
+            try:
+                substitutions.update(get_class_regex(p_class))
 
-word_list = apply_rules(rule_list, lexicon, substitutions)
+            except AssertionError:
+                error_str = "Malformed rule at line " + str(class_line_counter) +  "\ncontinue? y/N"
+                error_dialog(error_str)
 
-if not args.out_file:
-    out_file = open("./changed_words", "w")
+    word_list = apply_rules(rule_list, lexicon, substitutions)
 
-args.out_file.write("\n".join(word for word in word_list))
+    if not args.out_file:
+        out_file = open("./changed_words", "w")
+
+    args.out_file.write("\n".join(word for word in word_list))
+
