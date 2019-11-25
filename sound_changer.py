@@ -95,7 +95,7 @@ def apply_rules(rule_list: List[str], word_list: List[str], substitutions: dict)
     for rule in rule_list:
         rule_counter += 1
 
-        if rule == "\n" or rule == "":
+        if rule == "\n" or rule == "" or rule.startswith('%'):
             continue
 
         try:
@@ -114,6 +114,11 @@ def apply_rules(rule_list: List[str], word_list: List[str], substitutions: dict)
 # or, digraphs, trigraphs, etc. can be defined and treated as single units by comma separation, e.g
 # C=t,th,d,dh,f 
 def get_class_regex(class_str: str) -> Dict[str, str]:
+    #TODO: recursive character class definitions
+    # e.g
+    # N=nm
+    # C=Ntpksxlr
+
     class_str = class_str.strip()
 
     # must have exactly one =, and cannot contain the reserved symbol #
@@ -161,14 +166,17 @@ if __name__ == '__main__':
     if args.phon_classes_file:
         class_line_counter = 0
         
-        for p_class in args.phon_classes_file:
+        for line in args.phon_classes_file:
             class_line_counter += 1
+            
+            if line == "\n" or line.startswith('%'):
+                continue
 
             try:
-                substitutions.update(get_class_regex(p_class))
+                substitutions.update(get_class_regex(line))
 
             except AssertionError:
-                error_str = "Malformed rule at line " + str(class_line_counter) +  "\ncontinue? y/N"
+                error_str = "Malformed sound class at line " + str(class_line_counter) +  "\ncontinue? y/N"
                 error_dialog(error_str)
 
     word_list = apply_rules(rule_list, lexicon, substitutions)
