@@ -71,7 +71,7 @@ def parse_class_file(pFile: IO) -> List[sound_class]:
         # the syntax is
         # NAME=s1,s2,s3,s4...
         if "," in body:
-            for sound in body.spliat(""):
+            for sound in body.split(""):
                 new_class.add_member(re.escape(sound))
 
         else:
