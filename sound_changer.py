@@ -17,7 +17,7 @@ def get_regex(rule_str: str, substitutions: dict) -> Tuple[str, str]:
     # 'replacement' is what it changes to, and can be empty
     # 'environment' is the phological environment, and must either contain exactly one _ or be empty
     # a '#' in the environment means a word boundary, 
-    assert re.match("[^#_/]+[>/][^#_/]*/(#?[^#_/]*_[^#_/]*#?|)", rule_str)
+    assert re.match("[^#_/]+/[^#_/]*/(#?[^#_/]*_[^#_/]*#?|)", rule_str)
 
     parts = rule_str.split("/")
 
