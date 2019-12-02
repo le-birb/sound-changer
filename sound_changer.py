@@ -1,4 +1,3 @@
-#!/bin/python3
 
 import argparse
 # this library works much better with unicode than the built in re
