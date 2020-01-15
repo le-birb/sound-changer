@@ -74,7 +74,7 @@ def error_dialog(error_str: str) -> None:
         print(error_str)
         choice = input("> ")
 
-        if choice.lower() == "" or choice == "n":
+        if choice.lower() == "n" or choice == "":
             raise RuleError
 
         elif choice.lower() == "y":
