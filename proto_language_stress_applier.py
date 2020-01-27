@@ -27,7 +27,7 @@ for word in args.input_file:
     word = word.strip()
 
     # skip invalid words
-    if word == "#N/A":
+    if word == "#N/A" or word == "":
         continue
 
     syllable_list = []
