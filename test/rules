@@ -7,12 +7,13 @@ N / n /_t
 e / ə / [^']_
 i / ə / [^']_
 
-r / l / [VF]_
-r / l / #_
-
 ' / /
 
 V / / V.*_#
+
+r / l / V_
+r / l / F_
+r / l / #_
 
 N // _#
 
@@ -20,7 +21,6 @@ N // _#
 ə / / V.*_C?#
 V / / #_.*V
 
-li / il / d_
 di / id / l_
 tsi / its / C_
 də / əd / C_
@@ -30,7 +30,23 @@ də / əd / C_
 ba / ab / C_
 bi / ib / C_
 mp / m / C_
+lm / ml / #_
+[tdðþ] / / [tdþð]_#
 
-lh / hl /
-Fl / hl /
+lh / ll /
+Fl / ll /
 Zl / jl /
+
+h / / _[^l]
+
+% simply romanization conventions
+thl / tl /
+e / é /
+ə / e /
+þ / th /
+ð / dh /
+tś / ch /
+ś / sh /
+ź / zh /
+ǵ / gh /
+ŋ / n /
