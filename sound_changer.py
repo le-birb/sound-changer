@@ -2,74 +2,182 @@
 import argparse
 # this library works much better with unicode than the built in re
 import regex as re
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, IO
 
-import sound_class
+class sound_class:
+
+    def __init__(self, def_string: str, class_list = None) -> None:
+        self.name, self.member_string = def_string.split("=")
+        self.members = []
+
+        if "," in self.member_string:
+            member_list = self.member_string.split(",")
+        else:
+            member_list = [char for char in self.member_string]
+
+        for member in member_list:
+            if class_list:
+                for sound_class in class_list:
+                    if sound_class.name == member:
+                        self.add_member(sound_class)
+                        break
+                else:
+                    self.add_member(member)
+            else:
+                self.add_member(member)
+
+    def __str__(self):
+        return self.name + "=" + self.member_string
+    
+    def __repr__(self):
+        return str(self)
+
+    def add_member(self, pMember) -> None:
+        self.members.append(pMember)
+
+
+    def get_string_matches(self) -> List[str]:
+        "Returns a list of regex-escaped strings that correspond to the sounds of the class"
+
+        string_matches = []
+
+        for member in self.members:
+            if type(member) is str:
+                string_matches.append(re.escape(member))
+
+            elif type(member) is sound_class:
+                string_matches += member.get_string_matches()
+
+        return string_matches
+
+
+    def get_regex(self)-> str:
+        "Returns a regular expression string that matches any member of the class"
+
+        string_matches = self.get_string_matches()
+        
+        # any sound represented by more than one character prevents us from
+        # using a regex character class to match
+        if any([len(string) > 1 for string in string_matches]):
+            match_body = "|".join(string_matches)
+            regex = "(" + match_body + ")"
+        
+        else:
+            match_body = "".join(string_matches)
+            regex = "[" + match_body + "]"
+        
+        return regex
+
+# end sound_class
+
+def parse_class_file(pFile: IO) -> List[sound_class]:
+
+    classes = []
+
+    for line in pFile:
+
+        if line.startswith('%') or line.startswith('\n'):
+            continue # the line is either empty or to be ignored
+
+        # make sure the line is a well-formed class string with no illegal characters
+        assert(re.fullmatch(r"[^#=]+=[^#=]+", line))
+
+        classes.append(sound_class(line.strip(), classes))
+
+    return classes
+
+
+class rule:
+
+    def __init__(self, rule_str: str):
+        # a sound change rule is of the form target/replacement/environment
+        # 'target' is whatever is being changed, and must be nonempty
+        # 'replacement' is what it changes to, and can be empty
+        # 'environment' is the phological environment, and must either contain exactly one _ or be empty
+        # a '#' in the environment means a word boundary
+        # this checks if the rule string passed is valid
+        assert re.match("[^#_/]+/[^#_/]*/(#?[^#_/]*_[^#_/]*#?|)", rule_str)
+
+        # change to regex syntax
+        self.rule_str = re.sub("#", "\b", rule_str)
+
+        self.target, self.replacement, self.environment = self.rule_str.split("/")
+        self.environment = re.sub("(\(.+?\))", "\1?", self.environment)
+        self.regex_match = re.sub("_", self.target, self.environment)
+
+    def __str__(self):
+        return self.rule_str
+    
+    def __repr__(self):
+        return str(self)
+
+    def apply(self, word: str, sound_classes: List[sound_class] = None) -> str:
+
+        if not sound_classes:
+            return re.sub(self.regex_match, self.substitution, word)
+        
+        else:
+            target_classes = []
+            replacement_classes = []
+
+            for sound_class in sound_classes:
+                if sound_class.name in self.target:
+                    target_classes.append(sound_class)
+                if sound_class.name in self.replacement:
+                    replacement_classes.append(sound_class)
+
+            # no sound classes to worry about
+            if len(target_classes) == 0 == len(replacement_classes) == 0:
+                    return re.sub(self.regex_match, self.substitution, word)
+
+            # e.g. CV/CVN/
+            # what should be written for the replacement sound classes is ambiguous, and so illegal
+            elif  len(target_classes) < len(replacement_classes):
+                print("Rule \"" + self.rule_str + "\" invalid: replacement classes cannot exceed target classes in number.")
+            
+            # len(target_classes) >= len(replacement_classes)
+            # e.g. CV/V/ or N/L/_#
+            else:
+                # get regex expresions for all target classes
+                # substitute those into rule string
+                regex_string = self.target
+
+                for c in target_classes:
+                    regex_string = re.sub(c.name, "("+c.get_regex()+")", regex_string)
+                
+                # try that on word
+                match_iter = re.finditer(regex_string, word)
+
+                # if no matches, return word (empty iterator skips loop)
+                for match in match_iter:
+                    # if matches, take list of those matches
+                    # determine which parts of the matches correspond to which character classes
+                    match_groups = match.groups()
+
+                    group_count = 0
+                    for sound_match in match_groups:
+                        # grab the corresponding sound class
+                        sound_class = target_classes[group_count]
+
+                        # the sound_match is escaped because the get_string_matches() strings are escaped
+                        idx = sound_class.get_string_matches().index(re.escape(sound_match))
+                        repl_sound = replacement_classes[group_count].get_string_matches()[idx]
+
+                        # use a direct substitution back into the original word
+                        # TODO: ifgure out if doing this breaks things
+                        # I don't think it does, but it might change things it shouldn't
+                        word = re.sub(re.escape(sound_match), repl_sound, word)
+
+                return word
+
+# end rule
+
 
 def raw_str(s: str):
     return s.encode('unicode-escape').decode()
 
-def get_regex(rule: str, substitutions: dict) -> Tuple[str, str]:
-    # strip whitespace from the string
-    rule_str = re.sub(pattern = r"\s", repl = "", string = rule)
-
-    # a sound change rule is of the form sound/replacement/environment
-    # 'sound' is whatever is being changed, and must be nonempty
-    # 'replacement' is what it changes to, and can be empty
-    # 'environment' is the phological environment, and must either contain exactly one _ or be empty
-    # a '#' in the environment means a word boundary, 
-    assert re.match("[^#_/]+/[^#_/]*/(#?[^#_/]*_[^#_/]*#?|)", rule_str)
-
-    parts = rule_str.split("/")
-
-    target_str = parts[0]
-    repl_str = parts[1]
-    env_str = parts[2]
-
-    if env_str != "" and env_str != "_":
-        if env_str.startswith("_"):
-            befores = ""
-            # take everything but the underscore
-            afters = env_str[1:]
-
-        elif env_str.endswith("_"):
-            # take everything but the underscore
-            befores = env_str[:-1]
-            afters = ""
-
-        else:
-            befores, afters = env_str.split("_")
-
-        # add the environment criteria as lookaround non-capturing groups
-        # e.g. we don't want s/z/V_V to capture either of the vowels
-        if befores != "":
-            target_str = "(?<=" + befores + ")" + target_str 
-
-        if afters != "":    
-            target_str = target_str + "(?=" + afters + ")"
-
-    for key in substitutions:
-        if key in target_str:
-            target_str = re.sub(string = target_str, pattern = key, repl = raw_str(substitutions[key]))
-
-    return target_str, repl_str
-
-
-def apply_rule(rule_str: str, word_list: List[str], substitutions: dict) -> List[str]:
-
-    target, repl = get_regex(rule_str, substitutions)
-
-    new_words = []
-
-    for word in word_list:
-        new_words.append(re.sub(string = word, pattern = target, repl = repl))
-
-    return new_words
-
-
 class RuleError(RuntimeError):
     pass
-
 
 def error_dialog(error_str: str) -> None:
     while True:
@@ -87,63 +195,28 @@ def error_dialog(error_str: str) -> None:
             print("Please enter one of: yYnN")
 
 
-def apply_rules(rule_list: List[str], word_list: List[str], substitutions: dict) -> List[str]:
+def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[sound_class]) -> List[str]:
 
     new_words = word_list
 
     rule_counter = 0
 
-    for rule in rule_list:
+    for rule_str in rule_list:
         rule_counter += 1
 
-        if rule == "\n" or rule == "" or rule.startswith('%'):
+        if rule_str == "\n" or rule_str == "" or rule_str.startswith('%'):
             continue
 
         try:
-            new_words = apply_rule(rule, new_words, substitutions)
+            curr_rule = rule(rule_str)
+
+            new_words = [curr_rule.apply(word, sound_classes) for word in new_words]
 
         except AssertionError:
             error_str = "Malformed sound change rule at line " + str(rule_counter) + ".\nKeep going? y/N"
             error_dialog(error_str)
 
     return new_words
-
-
-# a phonological class if defined on a single line in the input file, and is of the form
-# ID=phonemes, e.g.
-# V=aeiou
-# or, digraphs, trigraphs, etc. can be defined and treated as single units by comma separation, e.g
-# C=t,th,d,dh,f 
-def get_class_regex(class_str: str) -> Dict[str, str]:
-    #TODO: recursive character class definitions
-    # e.g
-    # N=nm
-    # C=Ntpksxlr
-
-    class_str = class_str.strip()
-
-    # must have exactly one =, and cannot contain the reserved symbol #
-    # also cannot have an empty id or phoneme list
-    assert(re.fullmatch(r"[^#=]+=[^#=]+", class_str))
-    symbol, sounds = class_str.split('=')
-
-    # handle the case with comma separation
-    # requires the use of (str1|str2) regex syntax
-    if ',' in sounds:
-        sound_list = []
-        # escape and regex characters that might occur in each sound string
-        for sound in sounds.split(','):
-            sound_list.append(re.escape(sound))
-        
-        return_regex = '(' + '|'.join(sound_list) + ')'
-
-    # handle the simpler case of single-letter phonemes
-    # can take advantage of [abcd]  syntax
-    else:
-        return_regex = '[' + re.escape(sounds) + ']'
-
-    return {symbol: return_regex}
-
 
 if __name__ == '__main__':
 
@@ -161,9 +234,9 @@ if __name__ == '__main__':
 
     rule_list = [rule.strip() for rule in args.rules_file]
 
-    phon_classes = sound_class.parse_class_file(args.phon_classes_file)
+    phon_classes = parse_class_file(args.phon_classes_file)
 
-    word_list = apply_rules(rule_list, lexicon, sound_class.list)
+    word_list = apply_rules(rule_list, lexicon, phon_classes)
 
     if not args.out_file:
         out_file = open("./changed_words", "w")
