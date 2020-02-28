@@ -13,30 +13,6 @@
             "args": ["test/test_lex", "test/test_rules", "-otest/test_changed", "-ctest/test_classes"]
         },
         {
-            "name": "PT Change",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "args": ["proto-talossian/lexicon_stress", "proto-talossian/rules", "-oproto-talossian/changed", "-cproto-talossian/classes"]
-        },
-        {
-            "name": "PT Stress",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "args": ["proto-talossian/lexicon", "proto-talossian/lexicon_stress"]
-        },
-        {
-            "name": "PT Conjugate",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "args": ["proto-talossian/verbs", "-oproto-talossianconjugated"]
-        },
-        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
