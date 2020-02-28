@@ -17,7 +17,7 @@ class rule:
         self.regex_match = re.sub("_", self.target, self.environment)
 
 
-    def apply(self, word: str, sound_classes: List[sound_class] = None) -> None:
+    def apply(self, word: str, sound_classes: List[sound_class] = None) -> str:
 
         if sound_classes is None:
             return re.sub(self.regex_match, self.substitution, word)
