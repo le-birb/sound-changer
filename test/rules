@@ -17,10 +17,12 @@ r / l / #_
 
 N // _#
 
+% eliminate word-initial vowels and the schwa in first and final syllables in polysyllabic words
 ə / / #C_.*V
 ə / / V.*_C?#
 V / / #_.*V
 
+% get rid of some awkward clusters through various strategies
 di / id / l_
 tsi / its / C_
 də / əd / C_
@@ -33,11 +35,15 @@ mp / m / C_
 lm / ml / #_
 [tdðþ] / / [tdþð]_#
 
+ll / jl /
+
+ə / / _N
+
 lh / ll /
 Fl / ll /
 Zl / jl /
 
-h / / _[^l]
+h / /
 
 % simply romanization conventions
 thl / tl /

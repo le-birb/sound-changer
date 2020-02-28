@@ -4,12 +4,14 @@ import argparse
 import regex as re
 from typing import List, Dict, Tuple
 
+import sound_class
+
 def raw_str(s: str):
     return s.encode('unicode-escape').decode()
 
-def get_regex(rule_str: str, substitutions: dict) -> Tuple[str, str]:
+def get_regex(rule: str, substitutions: dict) -> Tuple[str, str]:
     # strip whitespace from the string
-    rule_str = re.sub(pattern = r"\s", repl = "", string = rule_str)
+    rule_str = re.sub(pattern = r"\s", repl = "", string = rule)
 
     # a sound change rule is of the form sound/replacement/environment
     # 'sound' is whatever is being changed, and must be nonempty
@@ -159,26 +161,9 @@ if __name__ == '__main__':
 
     rule_list = [rule.strip() for rule in args.rules_file]
 
-    # substitutions required to match regex syntax
-    substitutions = {'#': r'\b'}
+    phon_classes = sound_class.parse_class_file(args.phon_classes_file)
 
-    if args.phon_classes_file:
-        class_line_counter = 0
-        
-        for line in args.phon_classes_file:
-            class_line_counter += 1
-            
-            if line == "\n" or line.startswith('%'):
-                continue
-
-            try:
-                substitutions.update(get_class_regex(line))
-
-            except AssertionError:
-                error_str = "Malformed sound class at line " + str(class_line_counter) +  "\ncontinue? y/N"
-                error_dialog(error_str)
-
-    word_list = apply_rules(rule_list, lexicon, substitutions)
+    word_list = apply_rules(rule_list, lexicon, sound_class.list)
 
     if not args.out_file:
         out_file = open("./changed_words", "w")

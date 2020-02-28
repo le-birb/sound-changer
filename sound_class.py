@@ -4,12 +4,25 @@ import regex as re
 
 class sound_class:
 
-    # class_list = {}
+    def __init__(self, def_string: str, class_list = None) -> None:
+        self.name, self.member_string = def_string.split("=")
 
-    def __init__(self, pName: str) -> None:
-        self.name = pName
-        self.members = []
-        # sound_class.class_list.update({self.name: self})
+        if "," in self.member_string:
+            member_list = self.member_string.split(",")
+        else:
+            member_list = [char for char in self.member_string]
+
+        for member in member_list:
+            if class_list is not None:
+                for sound_class in class_list:
+                    if sound_class.name == member:
+                        self.add_member(sound_class)
+                        break
+            else:
+                self.add_member(member)
+        
+        if class_list is not None:
+            class_list.update({self.name: self})
 
 
     def add_member(self, pMember: Union[str, sound_class]) -> None:
@@ -30,9 +43,9 @@ class sound_class:
 
         return string_matches
 
-    
+
     def get_regex(self)-> str:
-        "Returns a regular expression that matches any member of the class"
+        "Returns a regular expression string that matches any member of the class"
 
         string_matches = self.get_string_matches()
         
@@ -61,23 +74,6 @@ def parse_class_file(pFile: IO) -> List[sound_class]:
         # make sure the line is a well-formed class string with no illegal characters
         assert(re.fullmatch(r"[^#=]+=[^#=]+", line))
 
-        name, body = line.split("=")
-
-        new_class = sound_class(name)
-
-        # TODO: handle recursive sound class definition (definition-time or parse-time?)
-
-        # sounds represented by more than one character can be handles by character classes
-        # the syntax is
-        # NAME=s1,s2,s3,s4...
-        if "," in body:
-            for sound in body.split(""):
-                new_class.add_member(re.escape(sound))
-
-        else:
-            for char in body:
-                new_class.add_member(re.escape(char))
-        
-        classes.append(new_class)
+        classes.append(sound_class(line, classes))
 
     return classes
