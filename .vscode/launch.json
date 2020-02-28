@@ -5,28 +5,36 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Change",
+            "name": "Test",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "c:\\Users\\birb\\Desktop\\soundchanger\\sound_changer.py",
             "console": "integratedTerminal",
-            "args": ["test/lexicon_stress", "test/rules", "-otest/out/changed", "-ctest/classes"]
+            "args": ["test/test_lex", "test/test_rules", "-otest/test_changed", "-ctest/test_classes"]
         },
         {
-            "name": "Python: Stress",
+            "name": "PT Change",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["test/lexicon", "test/out/lexicon_stress"]
+            "args": ["proto-talossian/lexicon_stress", "proto-talossian/rules", "-oproto-talossian/changed", "-cproto-talossian/classes"]
         },
         {
-            "name": "Python: Conjugate",
+            "name": "PT Stress",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": ["test/verbs", "-otest/out/conjugated"]
+            "args": ["proto-talossian/lexicon", "proto-talossian/lexicon_stress"]
+        },
+        {
+            "name": "PT Conjugate",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["proto-talossian/verbs", "-oproto-talossianconjugated"]
         },
         {
             "name": "Python: Current File",
