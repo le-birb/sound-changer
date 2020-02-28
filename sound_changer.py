@@ -87,9 +87,12 @@ def parse_class_file(pFile: IO) -> List[sound_class]:
     return classes
 
 
+def lookaround(behind: str, match: str, forward: str) -> str:
+    return "(?<=" + behind + ")" + match + "(?=" + forward + ")"
+
 class rule:
 
-    def __init__(self, rule_str: str):
+    def __init__(self, rule_str: str, sound_classes: List[sound_class]):
         # a sound change rule is of the form target/replacement/environment
         # 'target' is whatever is being changed, and must be nonempty
         # 'replacement' is what it changes to, and can be empty
@@ -102,8 +105,15 @@ class rule:
         self.rule_str = re.sub("#", "\b", rule_str)
 
         self.target, self.replacement, self.environment = self.rule_str.split("/")
-        self.environment = re.sub("(\(.+?\))", "\1?", self.environment)
-        self.regex_match = re.sub("_", self.target, self.environment)
+        # parentheses indicate optional sounds
+        self.pre_env, self.post_env = re.sub("(\(.+?\))", "\1?", self.environment).split("_")
+        # substitute in sound classes
+        for sound_class in sound_classes:
+            self.pre_env = re.sub(sound_class.name, sound_class.get_regex(), self.pre_env)
+            self.post_env = re.sub(sound_class.name, sound_class.get_regex(), self.post_env)
+
+        # wrap environment in lookaround so it isn't deleted when substitution occurs
+        self.regex_match = lookaround(self.pre_env, self.target, self.post_env)
 
     def __str__(self):
         return self.rule_str
@@ -136,7 +146,7 @@ class rule:
                 print("Rule \"" + self.rule_str + "\" invalid: replacement classes cannot exceed target classes in number.")
             
             # len(target_classes) >= len(replacement_classes)
-            # e.g. CV/V/ or N/L/_#
+            # e.g. CV/V/ or C/G/V_
             else:
                 # get regex expresions for all target classes
                 # substitute those into rule string
@@ -145,6 +155,9 @@ class rule:
                 for c in target_classes:
                     regex_string = re.sub(c.name, "("+c.get_regex()+")", regex_string)
                 
+                # add environment to check
+                regex_string = lookaround(self.pre_env, regex_string, self.post_env)
+
                 # try that on word
                 match_iter = re.finditer(regex_string, word)
 
@@ -164,9 +177,9 @@ class rule:
                         repl_sound = replacement_classes[group_count].get_string_matches()[idx]
 
                         # use a direct substitution back into the original word
-                        # TODO: ifgure out if doing this breaks things
-                        # I don't think it does, but it might change things it shouldn't
-                        word = re.sub(re.escape(sound_match), repl_sound, word)
+                        # remembering to also check for the proper environment
+                        change_match = lookaround(self.pre_env, re.escape(sound_match), self.post_env)
+                        word = re.sub(change_match, repl_sound, word)
 
                 return word
 
@@ -208,7 +221,7 @@ def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[
             continue
 
         try:
-            curr_rule = rule(rule_str)
+            curr_rule = rule(rule_str, sound_classes)
 
             new_words = [curr_rule.apply(word, sound_classes) for word in new_words]
 
