@@ -190,11 +190,11 @@ class rule:
                         # the sound_match is escaped because the get_string_matches() strings are escaped
                         idx = sound_class.get_string_matches().index(re.escape(sound_match))
                         
-                        if len(replacement_classes) < group_count:
-                            repl_class = replacement_classes[group_count].get_string_matches()
+                        if len(replacement_classes) > group_count:
+                            repl_class = replacement_classes[group_count]
 
-                            if len(repl_class) < idx:
-                                replacement_string - re.sub(repl_class.name, repl_class.get_string_matches()[idx], replacement_string)
+                            if len(repl_class.get_string_matches()) > idx:
+                                replacement_string = re.sub(repl_class.name, repl_class.get_string_matches()[idx], replacement_string)
 
                         group_count += 1
 
