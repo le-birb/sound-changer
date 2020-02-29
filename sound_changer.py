@@ -105,12 +105,20 @@ class rule:
         self.rule_str = re.sub("#", "\b", rule_str)
 
         self.target, self.replacement, self.environment = self.rule_str.split("/")
-        # parentheses indicate optional sounds
-        self.pre_env, self.post_env = re.sub("(\(.+?\))", "\1?", self.environment).split("_")
+
+        # parentheses indicate optional sounds in the environment
+        self.environment = re.sub("(\(.+?\))", "\1?", self.environment)
+
         # substitute in sound classes
         for sound_class in sound_classes:
-            self.pre_env = re.sub(sound_class.name, sound_class.get_regex(), self.pre_env)
-            self.post_env = re.sub(sound_class.name, sound_class.get_regex(), self.post_env)
+            self.environment = re.sub(sound_class.name, sound_class.get_regex(), self.environment)
+
+        # split up the before and after environments since they're handled differently by regex
+        if self.environment:
+            self.pre_env, self.post_env = self.environment.split("_")
+        else:
+            # if the environment is blank, both parts should also be blank
+            self.pre_env = self.post_env = ""
 
         # wrap environment in lookaround so it isn't deleted when substitution occurs
         self.regex_match = lookaround(self.pre_env, self.target, self.post_env)
@@ -124,7 +132,7 @@ class rule:
     def apply(self, word: str, sound_classes: List[sound_class] = None) -> str:
 
         if not sound_classes:
-            return re.sub(self.regex_match, self.substitution, word)
+            return re.sub(self.regex_match, self.replacement, word)
         
         else:
             target_classes = []
@@ -138,7 +146,7 @@ class rule:
 
             # no sound classes to worry about
             if len(target_classes) == 0 == len(replacement_classes) == 0:
-                    return re.sub(self.regex_match, self.substitution, word)
+                    return re.sub(self.regex_match, self.replacement, word)
 
             # e.g. CV/CVN/
             # what should be written for the replacement sound classes is ambiguous, and so illegal
