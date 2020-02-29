@@ -101,8 +101,9 @@ class rule:
         # this checks if the rule string passed is valid
         assert re.match("[^#_/]+/[^#_/]*/(#?[^#_/]*_[^#_/]*#?|)", rule_str)
 
-        # change to regex syntax
-        self.rule_str = re.sub("#", "\b", rule_str)
+        # change to regex syntax and strip whitespace
+        self.rule_str = re.sub("#", r"\b", rule_str)
+        self.rule_str = re.sub(r"\s", "", self.rule_str)
 
         self.target, self.replacement, self.environment = self.rule_str.split("/")
 
@@ -169,6 +170,9 @@ class rule:
                 # try that on word
                 match_iter = re.finditer(regex_string, word)
 
+                target_regex = self.target
+                replacement_string = self.replacement
+
                 # if no matches, return word (empty iterator skips loop)
                 for match in match_iter:
                     # if matches, take list of those matches
@@ -180,16 +184,24 @@ class rule:
                         # grab the corresponding sound class
                         sound_class = target_classes[group_count]
 
+                        # sub in the match for the sound class in the target regex
+                        target_regex = re.sub(sound_class.name, sound_match, target_regex)
+
                         # the sound_match is escaped because the get_string_matches() strings are escaped
                         idx = sound_class.get_string_matches().index(re.escape(sound_match))
-                        repl_sound = replacement_classes[group_count].get_string_matches()[idx]
+                        
+                        if len(replacement_classes) < group_count:
+                            repl_class = replacement_classes[group_count].get_string_matches()
 
-                        # use a direct substitution back into the original word
-                        # remembering to also check for the proper environment
-                        change_match = lookaround(self.pre_env, re.escape(sound_match), self.post_env)
-                        word = re.sub(change_match, repl_sound, word)
+                            if len(repl_class) < idx:
+                                replacement_string - re.sub(repl_class.name, repl_class.get_string_matches()[idx], replacement_string)
 
-                return word
+                        group_count += 1
+
+                # use a direct substitution back into the original word
+                # remembering to also check for the proper environment
+                target_regex = lookaround(self.pre_env, target_regex, self.post_env)
+                return re.sub(target_regex,replacement_string, word)
 
 # end rule
 
