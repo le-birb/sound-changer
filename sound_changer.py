@@ -151,6 +151,7 @@ class rule:
 
             # e.g. CV/CVN/
             # what should be written for the replacement sound classes is ambiguous, and so illegal
+            # TODO: make this actually throw and error or something or at least actually handle this case
             elif  len(target_classes) < len(replacement_classes):
                 print("Rule \"" + self.rule_str + "\" invalid: replacement classes cannot exceed target classes in number.")
             
