@@ -102,8 +102,8 @@ class rule:
         assert re.match("[^#_/]+/[^#_/]*/(#?[^#_/]*_[^#_/]*#?|)", rule_str)
 
         # change to regex syntax and strip whitespace
-        self.rule_str = re.sub("#", r"\b", rule_str)
-        self.rule_str = re.sub(r"\s", "", self.rule_str)
+        self.rule_str = re.sub(r"\s", "", rule_str)
+        self.rule_str = re.sub("#", r"\\b", self.rule_str)
 
         self.target, self.replacement, self.environment = self.rule_str.split("/")
 
