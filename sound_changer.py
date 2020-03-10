@@ -90,6 +90,12 @@ def parse_class_file(pFile: IO) -> List[sound_class]:
 def lookaround(behind: str, match: str, forward: str) -> str:
     return "(?<=" + behind + ")" + match + "(?=" + forward + ")"
 
+def capture_group(s: str) -> str:
+    if re.match("\(.*\)", s):
+        return s
+    else:
+        return "("+s+")"
+
 class rule:
 
     def __init__(self, rule_str: str, sound_classes: List[sound_class]):
@@ -110,16 +116,27 @@ class rule:
         # parentheses indicate optional sounds in the environment
         self.environment = re.sub("(\(.+?\))", "\1?", self.environment)
 
-        # substitute in sound classes
-        for sound_class in sound_classes:
-            self.environment = re.sub(sound_class.name, sound_class.get_regex(), self.environment)
-
         # split up the before and after environments since they're handled differently by regex
         if self.environment:
             self.pre_env, self.post_env = self.environment.split("_")
         else:
             # if the environment is blank, both parts should also be blank
             self.pre_env = self.post_env = ""
+
+        # count sound classes in pre an post environments so they can be ignored while applying the rule
+        # each class will be a match group, which can be skipped
+        # TODO: try to come up with a better way to do this
+        self.pre_class_count = 0
+        self.post_class_count = 0
+        # substitute in sound classes
+        for sound_class in sound_classes:
+            if sound_class.name in self.pre_env:
+                self.pre_env = re.sub(sound_class.name, capture_group(sound_class.get_regex()), self.pre_env)
+                self.pre_class_count += 1
+            
+            if sound_class.name in self.post_env:
+                self.post_env = re.sub(sound_class.name, capture_group(sound_class.get_regex()), self.post_env)
+                self.post_class_count += 1
 
         # wrap environment in lookaround so it isn't deleted when substitution occurs
         self.regex_match = lookaround(self.pre_env, self.target, self.post_env)
@@ -178,7 +195,8 @@ class rule:
                 for match in match_iter:
                     # if matches, take list of those matches
                     # determine which parts of the matches correspond to which character classes
-                    match_groups = match.groups()
+                    
+                    match_groups = match.groups()[self.pre_class_count:len(match.groups()) - self.post_class_count]
 
                     group_count = 0
                     for sound_match in match_groups:
@@ -258,8 +276,10 @@ if __name__ == '__main__':
 
     parser.add_argument("lex_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
     parser.add_argument("rules_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
-    parser.add_argument("-o", "--out", action = "store", type = argparse.FileType("w", encoding = "utf-8"), dest = "out_file", default = None)
-    parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"), dest = "phon_classes_file", default = None)
+    parser.add_argument("-o", "--out", action = "store", type = argparse.FileType("w", encoding = "utf-8"),\
+        dest = "out_file", default = None)
+    parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"),\
+        dest = "phon_classes_file", default = None)
     parser.add_argument("--null_strings", action = "store", type = list, dest = "null_strings", default = ["#N/A", ""])
 
     args = parser.parse_args()
