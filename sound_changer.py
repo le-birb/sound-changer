@@ -3,6 +3,7 @@ import argparse
 # this library works much better with unicode than the built in re
 import regex as re
 from typing import List, Dict, Tuple, IO
+from time import time
 
 class sound_class:
 
@@ -281,8 +282,12 @@ if __name__ == '__main__':
     parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"),\
         dest = "phon_classes_file", default = None)
     parser.add_argument("--null_strings", action = "store", type = list, dest = "null_strings", default = ["#N/A", ""])
+    parser.add_argument("--time", action = "store_true")
 
     args = parser.parse_args()
+
+    if args.time:
+        start_time = time()
 
     lexicon = [word for word in filter(lambda w: w not in args.null_strings, [line.strip() for line in args.lex_file])]
 
@@ -293,7 +298,11 @@ if __name__ == '__main__':
     word_list = apply_rules(rule_list, lexicon, phon_classes)
 
     if not args.out_file:
-        out_file = open("./changed_words", "w")
+        out_file = open("./changed_words", "w", encoding = "utf-8")
 
     args.out_file.write("\n".join(word for word in word_list))
+
+    if args.time:
+        run_time = time() - start_time
+        print("Execution time: " + str(run_time))
 

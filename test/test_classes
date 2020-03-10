@@ -1,4 +1,9 @@
-C=ptk
-G=bdg
-F=fsx
-V=aeiou
+M=n̩,m̩,ŋ̍
+N=nmŋ
+V=aeiouəʊ'
+F=þsśxh
+Z=ðzźǵ
+S=FZ
+P=ptk
+B=bdg
+C=P,B,N,S,r,l,ts,tś,hl,jl,ll
