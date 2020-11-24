@@ -32,7 +32,7 @@ class fsm:
         self.start_state = state
 
     def check(self, input: str):
-        "Returns whether this fsm accepts the input string."
+        "Returns whether this finite state machine accepts the input string."
         current_state = self.start_state
         
         for c in input:
