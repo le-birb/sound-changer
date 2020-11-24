@@ -8,7 +8,7 @@
             "name": "Test",
             "type": "python",
             "request": "launch",
-            "program": "c:\\Users\\birb\\Desktop\\soundchanger\\sound_changer.py",
+            "program": "${workspaceFolder}\\sound_changer.py",
             "console": "integratedTerminal",
             "args": [
                 "test/test_lex",
@@ -22,7 +22,7 @@
             "name": "PT Test",
             "type": "python",
             "request": "launch",
-            "program": "c:\\Users\\birb\\Desktop\\soundchanger\\sound_changer.py",
+            "program": "${workspaceFolder}\\sound_changer.py",
             "console": "integratedTerminal",
             "args": [
                 "proto-talossian/lexicon_stress",
