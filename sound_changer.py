@@ -303,6 +303,6 @@ if __name__ == '__main__':
     args.out_file.write("\n".join(word for word in word_list))
 
     if args.time:
-        run_time = time() - start_time
+        run_time = time() - start_time # type: ignore
         print("Execution time: " + str(run_time))
 
