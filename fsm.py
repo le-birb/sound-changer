@@ -13,10 +13,10 @@ class state:
 
 
 class fsm:
-    def __init__(self, states = [], end_states = [], start_state = None):
+    def __init__(self, states = [], end_states = [], start_state = state()):
         self.states = states
         self.end_states = end_states
-        self.start_state = start_state
+        self.set_start_state(start_state)
     
     def add_state(self, state, end_state = False):
         self.states.append(state)
@@ -31,8 +31,12 @@ class fsm:
             self.add_state(state)
         self.start_state = state
 
+    def get_start_state(self):
+        return self.start_state
+
     def check(self, input: str):
         "Returns whether this finite state machine accepts the input string."
+
         current_state = self.start_state
         
         for c in input:
