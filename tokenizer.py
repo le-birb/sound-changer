@@ -6,6 +6,7 @@ class token_type(Enum):
     sound_class = "sound class"
     matched_sound = "matched sound"
     empty_sound = "empty sound"
+    space = "space"
 
     open_paren = "open parenthesis"
     close_paren = "close parenthesis"
@@ -93,7 +94,7 @@ def tokenize(rule: str, classes):
             tokens.append(token(token_type.close_brace))
 
         elif rule[i] == " " or rule[i] == "\t":
-            pass # ignore spaces and tabs
+            tokens.append(token(token_type.space))
 
         else:
             for c in classes:
