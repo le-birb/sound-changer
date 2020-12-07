@@ -271,6 +271,11 @@ def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[
         except AssertionError:
             error_str = "Malformed sound change rule at line " + str(rule_counter) + ".\nKeep going? y/N"
             error_dialog(error_str)
+        
+        except:
+            # print the current rule to help in debugging
+            print(curr_rule)
+            raise
 
     return new_words
 
