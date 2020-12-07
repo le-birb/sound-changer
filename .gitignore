@@ -2,4 +2,4 @@ test/out
 proto-talossian
 .vscode/settings.json
 __pycache__
-languages
+languages/*
