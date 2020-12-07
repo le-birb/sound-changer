@@ -274,7 +274,7 @@ def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[
         
         except:
             # print the current rule to help in debugging
-            print(curr_rule)
+            print(curr_rule) # type: ignore
             raise
 
     return new_words
