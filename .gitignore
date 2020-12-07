@@ -1,5 +1,5 @@
 test/out
 proto-talossian
-.vscode/settings.json
+.vscode/*
 __pycache__
 languages/*
