@@ -184,7 +184,7 @@ class rule:
                 regex_string = self.target
 
                 for c in target_classes:
-                    regex_string = re.sub(c.name, "("+c.get_regex()+")", regex_string)
+                    regex_string = re.sub(c.name, capture_group(c.get_regex()), regex_string)
                 
                 # add environment to check
                 regex_string = lookaround(self.pre_env, regex_string, self.post_env)
