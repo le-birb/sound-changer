@@ -75,6 +75,9 @@ def parse_class_file(pFile: IO) -> List[sound_class]:
 
     classes = []
 
+    if not pFile:
+        return classes
+
     for line in pFile:
 
         if line.startswith('%') or line.startswith('\n'):
