@@ -138,6 +138,8 @@ class rule:
 
         # change to regex syntax and strip whitespace
         self.rule_str = re.sub(r"\s", "", rule_str)
+        # the regex for a word boundary is \b, but the \b sequence in python strings behaves really weirdly
+        # and it needs to be double escaped here to work, even in a raw string
         self.rule_str = re.sub("#", r"\\b", self.rule_str)
 
         self.target, self.replacement, self.environment = self.rule_str.split("/")
