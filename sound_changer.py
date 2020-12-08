@@ -325,9 +325,7 @@ if __name__ == '__main__':
         start_time = time()
 
     lexicon = [word for word in filter(lambda w: w not in args.null_strings, [line.strip() for line in args.lex_file])]
-
     rule_list = [rule.strip() for rule in args.rules_file]
-
     phon_classes = parse_class_file(args.phon_classes_file)
 
     word_list = apply_rules(rule_list, lexicon, phon_classes)
