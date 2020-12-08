@@ -257,20 +257,18 @@ class rule:
 def raw_str(s: str):
     return s.encode('unicode-escape').decode()
 
-class RuleError(RuntimeError):
-    pass
-
-def error_dialog(error_str: str) -> None:
+def ask_to_continue(error_str: str) -> bool:
     while True:
         print(error_str)
         choice = input("> ")
 
         if choice.lower() == "n" or choice == "":
-            raise RuleError
+            print("Exiting...")
+            return False
 
         elif choice.lower() == "y":
             print("Resuming sound changes")
-            break
+            return True
 
         else:
             print("Please enter one of: yYnN")
@@ -295,7 +293,9 @@ def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[
 
         except rule.parseError:
             error_str = "Malformed sound change rule at line " + str(rule_counter) + ".\nKeep going? y/N"
-            error_dialog(error_str)
+            if not ask_to_continue(error_str):
+                # return an empty list; no changes 
+                return []
         
         except:
             # print the current rule to help in debugging
