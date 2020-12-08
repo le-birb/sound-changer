@@ -102,6 +102,31 @@ def capture_group(s: str) -> str:
 
 class rule:
 
+    class parseError(Exception):
+        """Thrown when rule parsing encounters an error"""
+        pass
+
+    arrows = ["=>", "->", ">", "→", "/"]
+
+    def parse(string: str) -> Tuple[str]:
+        
+        for arrow in rule.arrows:
+            # look for an arrow to define the target -> replacement separation
+            if arrow in string:
+                target, string = string.split(arrow, maxsplit = 1)
+                break
+        else:
+            # no suitable arrow found
+            raise rule.parseError()
+        
+        if "/" in string:
+            repl, env = string.split("/", maxsplit = 1)
+        else:
+            repl = string
+            env = ""
+        
+        return target, repl, env
+
     def __init__(self, rule_str: str, sound_classes: List[sound_class]):
         # a sound change rule is of the form target/replacement/environment
         # 'target' is whatever is being changed, and must be nonempty
@@ -268,7 +293,7 @@ def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[
 
             new_words = [curr_rule.apply(word, sound_classes) for word in new_words]
 
-        except AssertionError:
+        except rule.parseError:
             error_str = "Malformed sound change rule at line " + str(rule_counter) + ".\nKeep going? y/N"
             error_dialog(error_str)
         
