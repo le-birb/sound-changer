@@ -310,7 +310,9 @@ if __name__ == '__main__':
 
     parser.add_argument("lex_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
     parser.add_argument("rules_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
-    parser.add_argument("-o", "--out", action = "store", type = argparse.FileType("w", encoding = "utf-8"),\
+    # the out file is read in with r+ because that won't delete the contents immediately
+    # if the program exits before finishing, an existing file should not be wiped
+    parser.add_argument("-o", "--out", action = "store", type = argparse.FileType("r+", encoding = "utf-8"),\
         dest = "out_file", default = None)
     parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"),\
         dest = "phon_classes_file", default = None)
@@ -330,10 +332,18 @@ if __name__ == '__main__':
 
     word_list = apply_rules(rule_list, lexicon, phon_classes)
 
-    if not args.out_file:
-        out_file = open("./changed_words", "w", encoding = "utf-8")
+    # if there are any words to record, write to the output
+    # otherwise don't mess with the output file
+    if word_list:
+        if not args.out_file:
+            # open a file to write to
+            # no r+ this time since we already know we want to overwrite this one
+            args.out_file = open("./changed_words", "w", encoding = "utf-8")
+        else:
+            # clear anything already in an existing file passed in from the command line
+            args.out_file.truncate(0)
 
-    args.out_file.write("\n".join(word for word in word_list))
+        args.out_file.write("\n".join(word for word in word_list))
 
     if args.time:
         run_time = time() - start_time # type: ignore
