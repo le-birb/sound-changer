@@ -161,13 +161,6 @@ class rule:
         return target, repl, pre_env, post_env
 
     def __init__(self, rule_str: str, sound_classes: List[sound_class]):
-        # a sound change rule is of the form target/replacement/environment
-        # 'target' is whatever is being changed, and must be nonempty
-        # 'replacement' is what it changes to, and can be empty
-        # 'environment' is the phological environment, and must either contain exactly one _ or be empty
-        # a '#' in the environment means a word boundary
-        # this checks if the rule string passed is valid
-        assert re.match("[^#_/]+/[^#_/]*/(#?[^#_/]*_[^#_/]*#?|)", rule_str)
 
         # the regex for a word boundary is \b, but the \b sequence in python strings behaves really weirdly
         # and it needs to be double escaped here to work, even in a raw string
