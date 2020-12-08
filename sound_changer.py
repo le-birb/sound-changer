@@ -144,9 +144,6 @@ class rule:
 
         self.target, self.replacement, self.environment = self.rule_str.split("/")
 
-        # parentheses indicate optional sounds in the environment
-        self.environment = re.sub("(\(.+?\))", "\1?", self.environment)
-
         # split up the before and after environments since they're handled differently by regex
         if self.environment:
             self.pre_env, self.post_env = self.environment.split("_")
