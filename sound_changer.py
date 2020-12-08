@@ -142,6 +142,11 @@ class rule:
         if any(re.search(r'\s', place) for place in (target, repl, env)):
             warn("Whitespace found within rule definition\n" + string + "\nAre you sure you want that?", rule.spaceWarning())
         
+        # replace a "null" character with an empty string
+        # so 's > 0' will delete any s
+        if repl == "∅" or repl == "0":
+            repl = ""
+
         if "_" in env:
             try:
                 pre_env, post_env = env.split("_")
