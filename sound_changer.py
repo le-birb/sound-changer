@@ -103,7 +103,7 @@ def capture_group(s: str) -> str:
 class rule:
 
     class parseError(Exception):
-        """Thrown when rule parsing encounters an error"""
+        """Thrown when rule parsing encounters an error, typically a syntax error"""
         pass
 
     arrows = ["=>", "->", ">", "→", "/"]
