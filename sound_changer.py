@@ -302,6 +302,16 @@ def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[
         if rule_str == "\n" or rule_str == "" or rule_str.startswith('%'):
             continue
 
+        if rule_str.startswith(":print:"):
+            suffix = rule_str[len(":print:"):].strip()
+            if suffix:
+                out_f = open(args.rules_file.name + suffix, "w")
+            else:
+                out_f = open(args.rules_file.name + "_debug", "w")
+            out_f.write("\n".join(word for word in new_words))
+            out_f.close()
+            continue
+
         try:
             curr_rule = rule(rule_str, sound_classes)
 
