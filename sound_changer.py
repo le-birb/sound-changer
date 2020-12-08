@@ -160,11 +160,11 @@ class rule:
         
         return target, repl, pre_env, post_env
 
-    def __init__(self, rule_str: str, sound_classes: List[sound_class]):
+    def __init__(self, string: str, sound_classes: List[sound_class]):
 
         # the regex for a word boundary is \b, but the \b sequence in python strings behaves really weirdly
         # and it needs to be double escaped here to work, even in a raw string
-        self.rule_str = re.sub("#", r"\\b", self.rule_str)
+        self.rule_str = re.sub("#", r"\\b", string)
 
         self.target, self.replacement, self.pre_env, self.post_env = rule.parse(self.rule_str)
 
