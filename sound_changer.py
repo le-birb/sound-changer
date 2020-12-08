@@ -3,6 +3,7 @@ import argparse
 # this library works much better with unicode than the built in re
 import regex as re
 from typing import List, Dict, Tuple, IO
+from warnings import warn
 from time import time
 
 class sound_class:
@@ -106,6 +107,10 @@ class rule:
         """Thrown when rule parsing encounters an error, typically a syntax error"""
         pass
 
+    class spaceWarning(Warning):
+        """A warning for whitespace within rules"""
+        pass
+
     arrows = ["=>", "->", ">", "→", "/"]
 
     def parse(string: str) -> Tuple[str]:
@@ -124,8 +129,31 @@ class rule:
         else:
             repl = string
             env = ""
+
+        # ignore surrounding whitespace in any part of the rule
+        # e.g. ' r >   d /   V_V '
+        # should be the same as 'r>d/V_V'
+        # but not 'r>d/V _V'
+        target = target.strip()
+        repl = repl.strip()
+        env = env.strip()
+        # warn about left over whitespace
+        # I'll probably add a way to disable this at some point but for now it's always
+        if any(re.search(r'\s', place) for place in (target, repl, env)):
+            warn("Whitespace found within rule definition\n" + string + "\nAre you sure you want that?", rule.spaceWarning())
         
-        return target, repl, env
+        if "_" in env:
+            try:
+                pre_env, post_env = env.split("_")
+            
+            except ValueError:
+                # if there are too many values to unpack, more than 1 underscore was used, and that's not allowed
+                raise rule.parseError() from None
+        
+        else:
+            pre_env = post_env = ""
+        
+        return target, repl, pre_env, post_env
 
     def __init__(self, rule_str: str, sound_classes: List[sound_class]):
         # a sound change rule is of the form target/replacement/environment
@@ -136,8 +164,6 @@ class rule:
         # this checks if the rule string passed is valid
         assert re.match("[^#_/]+/[^#_/]*/(#?[^#_/]*_[^#_/]*#?|)", rule_str)
 
-        # change to regex syntax and strip whitespace
-        self.rule_str = re.sub(r"\s", "", rule_str)
         # the regex for a word boundary is \b, but the \b sequence in python strings behaves really weirdly
         # and it needs to be double escaped here to work, even in a raw string
         self.rule_str = re.sub("#", r"\\b", self.rule_str)
