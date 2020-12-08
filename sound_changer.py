@@ -173,14 +173,7 @@ class rule:
         # and it needs to be double escaped here to work, even in a raw string
         self.rule_str = re.sub("#", r"\\b", self.rule_str)
 
-        self.target, self.replacement, self.environment = self.rule_str.split("/")
-
-        # split up the before and after environments since they're handled differently by regex
-        if self.environment:
-            self.pre_env, self.post_env = self.environment.split("_")
-        else:
-            # if the environment is blank, both parts should also be blank
-            self.pre_env = self.post_env = ""
+        self.target, self.replacement, self.pre_env, self.post_env = rule.parse(self.rule_str)
 
         # count sound classes in pre an post environments so they can be ignored while applying the rule
         # each class will be a match group, which can be skipped
