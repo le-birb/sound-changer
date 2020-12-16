@@ -23,7 +23,7 @@ class sound_class(set):
         return self.name
     
     def __repr__(self):
-        return self.name + "=" + "".join(self)
+        return self.name + "=" + ",".join(sound for sound in self)
 
     def __iter__(self):
         """Overrides the set's default iter method so that all member sound classes are iterated through too.
