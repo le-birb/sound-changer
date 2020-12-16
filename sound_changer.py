@@ -352,6 +352,10 @@ def apply_rules(rule_list: List[str], word_list: List[str]) -> List[str]:
 
 
 def sound_class_mult(base_class: sound_class, mult: Union[Iterable[str], str]) -> sound_class:
+    """Returns a sound class formed from combination of its sounds with the items in mult.
+    Useful for making classes that include long sounds, for instance, as (class file definition):
+    T=ptk
+    T=T*ː #T=p,t,k,pː,tː,kː"""
     if isinstance(mult, str):
         # if mult is just a string, wrap it in a tuple for the next part
         mult = tuple(mult)
@@ -362,6 +366,7 @@ def sound_class_mult(base_class: sound_class, mult: Union[Iterable[str], str]) -
     # combinations() isn't used because we need the sounds to always be present
     sound_sets = product(base_class, *(("", sound) for sound in mult))
     new_sounds = list("".join(s) for s in sound_sets)
+    # does not need a reference to the otehr sound classes since it is guaranteed to only contain sounds (strings)
     return sound_class("", new_sounds)
 
 def is_blank(string: str) -> bool:
