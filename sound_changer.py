@@ -2,7 +2,8 @@
 import argparse
 # this library works much better with unicode than the built in re
 import regex as re
-from typing import List, Dict, Tuple, IO
+
+from typing import List, Dict, Tuple, TextIO
 from warnings import warn
 from time import time
 
@@ -72,9 +73,9 @@ class sound_class:
 
 # end sound_class
 
-def parse_class_file(pFile: IO) -> List[sound_class]:
+def parse_class_file(pFile: TextIO) -> Dict[sound_class]:
 
-    classes = []
+    classes = {}
 
     if not pFile:
         return classes
@@ -87,7 +88,9 @@ def parse_class_file(pFile: IO) -> List[sound_class]:
         # make sure the line is a well-formed class string with no illegal characters
         assert(re.fullmatch(r"[^#=]+=[^#=]+", line))
 
-        classes.append(sound_class(line.strip(), classes))
+        new_class = sound_class(line.strip(), classes)
+
+        classes.update({new_class.name: new_class})
 
     return classes
 
@@ -160,7 +163,7 @@ class rule:
         
         return target, repl, pre_env, post_env
 
-    def __init__(self, string: str, sound_classes: List[sound_class]):
+    def __init__(self, string: str, sound_classes: dict[str, sound_class]):
 
         # the regex for a word boundary is \b, but the \b sequence in python strings behaves really weirdly
         # and it needs to be double escaped here to work, even in a raw string
@@ -174,13 +177,13 @@ class rule:
         self.pre_class_count = 0
         self.post_class_count = 0
         # substitute in sound classes
-        for sound_class in sound_classes:
-            if sound_class.name in self.pre_env:
-                self.pre_env = re.sub(sound_class.name, capture_group(sound_class.get_regex()), self.pre_env)
+        for class_name in sound_classes:
+            if class_name in self.pre_env:
+                self.pre_env = re.sub(class_name, capture_group(sound_classes[class_name].get_regex()), self.pre_env)
                 self.pre_class_count += 1
-            
-            if sound_class.name in self.post_env:
-                self.post_env = re.sub(sound_class.name, capture_group(sound_class.get_regex()), self.post_env)
+
+            if class_name in self.post_env:
+                self.post_env = re.sub(class_name, capture_group(sound_classes[class_name].get_regex()), self.post_env)
                 self.post_class_count += 1
 
         # wrap environment in lookaround so it isn't deleted when substitution occurs
@@ -192,20 +195,20 @@ class rule:
     def __repr__(self):
         return str(self)
 
-    def apply(self, word: str, sound_classes: List[sound_class] = None) -> str:
+    def apply(self, word: str, sound_classes: dict[str, sound_class] = None) -> str:
 
         if not sound_classes:
             return re.sub(self.regex_match, self.replacement, word)
         
         else:
-            target_classes = []
-            replacement_classes = []
+            target_classes: list[sound_class] = []
+            replacement_classes: list[sound_class] = []
 
-            for sound_class in sound_classes:
-                if sound_class.name in self.target:
-                    target_classes.append(sound_class)
-                if sound_class.name in self.replacement:
-                    replacement_classes.append(sound_class)
+            for class_name in sound_classes:
+                if class_name in self.target:
+                    target_classes.append(sound_classes[class_name])
+                if class_name in self.replacement:
+                    replacement_classes.append(sound_classes[class_name])
 
             # no sound classes to worry about
             if len(target_classes) == 0 == len(replacement_classes) == 0:
