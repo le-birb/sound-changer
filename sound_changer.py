@@ -80,7 +80,7 @@ def parse_class_file(pFile: TextIO) -> Dict[sound_class]:
     for line in pFile:
 
         if line.startswith('%') or line.startswith('\n'):
-            continue # the line is either empty or to be ignored
+            continue # the line is either empty or a comment
 
         # make sure the line is a well-formed class string with no illegal characters
         assert(re.fullmatch(r"[^#=]+=[^#=]+", line))
