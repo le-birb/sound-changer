@@ -10,12 +10,12 @@ from time import time
 
 class sound_class(set):
 
-    def __init__(self, name, sound_list: Iterable[str] = None, class_list: dict = None) -> None:
+    def __init__(self, name, sound_list: Iterable[str] = None, previous_classes: dict = None) -> None:
         self.name = name
         for member in sound_list:
-            if class_list and member in class_list:
+            if previous_classes and member in previous_classes:
                 # member is a sound class
-                self.add(class_list[member])
+                self.add(previous_classes[member])
             else:
                 # member is a regular string
                 self.add(member)
@@ -34,6 +34,9 @@ class sound_class(set):
                 yield from member
             else:
                 yield member
+
+    def __hash__(self):
+        return hash(self.name)
 
     def get_string_matches(self) -> List[str]:
         "Returns a list of regex-escaped strings that correspond to the sounds of the class"
@@ -70,7 +73,7 @@ class sound_class(set):
         "Thrown when sound class parsing encounters an error"
         pass
 
-    def parse_string(string: str):
+    def parse_string(string: str, sound_classes: Dict = None):
         if not re.fullmatch(r"[^#=]+=[^#=]+", string):
             raise sound_class.parse_error
 
@@ -82,7 +85,7 @@ class sound_class(set):
         else:
             sounds = list(member_string)
 
-        return sound_class(name, sounds)
+        return sound_class(name, sounds, sound_classes)
 
 
 def parse_class_file(pFile: TextIO) -> Dict[str, sound_class]:
@@ -98,7 +101,7 @@ def parse_class_file(pFile: TextIO) -> Dict[str, sound_class]:
         if line.startswith('%') or line == "":
             continue # the line is either empty or a comment
 
-        new_class = sound_class.parse_string(line)
+        new_class = sound_class.parse_string(line, classes)
 
         classes.update({new_class.name: new_class})
 
