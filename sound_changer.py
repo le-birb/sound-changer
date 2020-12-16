@@ -437,7 +437,6 @@ if __name__ == '__main__':
         dest = "out_file", default = None)
     parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"),\
         dest = "phon_classes_file", default = None)
-    parser.add_argument("--null_strings", action = "store", type = list, dest = "null_strings", default = ["#N/A", ""])
     parser.add_argument("--time", action = "store_true")
 
     args = parser.parse_args()
@@ -445,9 +444,9 @@ if __name__ == '__main__':
     if args.time:
         start_time = time()
 
-    lexicon = [word for word in filter(lambda w: w not in args.null_strings, [line.strip() for line in args.lex_file])]
-    rule_list = [rule.strip() for rule in args.rules_file]
-    rule.sound_classes = parse_class_file(args.phon_classes_file)
+    lexicon = [word for word in [line.strip() for line in args.lex_file]]
+    
+    rule_list = parse_rule_file(args.rules_file)
 
     word_list = apply_rules(rule_list, lexicon)
 
