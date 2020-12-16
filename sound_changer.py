@@ -3,7 +3,7 @@ import argparse
 # this library works much better with unicode than the built in re
 import regex as re
 
-from typing import Iterable, List, Dict, Tuple, TextIO
+from typing import Iterable, Tuple, TextIO
 from warnings import warn
 from time import time
 
@@ -34,7 +34,7 @@ class sound_class(set):
             else:
                 yield member
 
-    def get_string_matches(self) -> List[str]:
+    def get_string_matches(self) -> list[str]:
         "Returns a list of regex-escaped strings that correspond to the sounds of the class"
 
         string_matches = []
@@ -84,7 +84,7 @@ class sound_class(set):
         return sound_class(name, sounds)
 
 
-def parse_class_file(pFile: TextIO) -> Dict[sound_class]:
+def parse_class_file(pFile: TextIO) -> dict[str, sound_class]:
 
     classes = {}
 
@@ -304,7 +304,7 @@ def ask_to_continue(error_str: str) -> bool:
             print("Please enter one of: yYnN")
 
 
-def apply_rules(rule_list: List[str], word_list: List[str]) -> List[str]:
+def apply_rules(rule_list: list[str], word_list: list[str]) -> list[str]:
 
     new_words = word_list
 
