@@ -115,7 +115,7 @@ def capture_group(s: str) -> str:
 
 class rule:
 
-    sound_classes: Dict[str: sound_class] = {}
+    sound_classes: Dict[str, sound_class] = {}
 
     class parse_error(Exception):
         """Thrown when rule parsing encounters an error, typically a syntax error"""
