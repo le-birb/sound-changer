@@ -110,6 +110,8 @@ def capture_group(s: str) -> str:
 
 class rule:
 
+    sound_classes: dict[str: sound_class] = {}
+
     class parseError(Exception):
         """Thrown when rule parsing encounters an error, typically a syntax error"""
         pass
@@ -167,7 +169,7 @@ class rule:
         
         return target, repl, pre_env, post_env
 
-    def __init__(self, string: str, sound_classes: dict[str, sound_class]):
+    def __init__(self, string: str):
 
         # the regex for a word boundary is \b, but the \b sequence in python strings behaves really weirdly
         # and it needs to be double escaped here to work, even in a raw string
@@ -181,13 +183,13 @@ class rule:
         self.pre_class_count = 0
         self.post_class_count = 0
         # substitute in sound classes
-        for class_name in sound_classes:
+        for class_name in rule.sound_classes:
             if class_name in self.pre_env:
-                self.pre_env = re.sub(class_name, capture_group(sound_classes[class_name].get_regex()), self.pre_env)
+                self.pre_env = re.sub(class_name, capture_group(rule.sound_classes[class_name].get_regex()), self.pre_env)
                 self.pre_class_count += 1
 
             if class_name in self.post_env:
-                self.post_env = re.sub(class_name, capture_group(sound_classes[class_name].get_regex()), self.post_env)
+                self.post_env = re.sub(class_name, capture_group(rule.sound_classes[class_name].get_regex()), self.post_env)
                 self.post_class_count += 1
 
         # wrap environment in lookaround so it isn't deleted when substitution occurs
@@ -199,20 +201,20 @@ class rule:
     def __repr__(self):
         return str(self)
 
-    def apply(self, word: str, sound_classes: dict[str, sound_class] = None) -> str:
+    def apply(self, word: str) -> str:
 
-        if not sound_classes:
+        if not rule.sound_classes:
             return re.sub(self.regex_match, self.replacement, word)
         
         else:
             target_classes: list[sound_class] = []
             replacement_classes: list[sound_class] = []
 
-            for class_name in sound_classes:
+            for class_name in rule.sound_classes:
                 if class_name in self.target:
-                    target_classes.append(sound_classes[class_name])
+                    target_classes.append(rule.sound_classes[class_name])
                 if class_name in self.replacement:
-                    replacement_classes.append(sound_classes[class_name])
+                    replacement_classes.append(rule.sound_classes[class_name])
 
             # no sound classes to worry about
             if len(target_classes) == 0 == len(replacement_classes) == 0:
@@ -297,7 +299,7 @@ def ask_to_continue(error_str: str) -> bool:
             print("Please enter one of: yYnN")
 
 
-def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[sound_class]) -> List[str]:
+def apply_rules(rule_list: List[str], word_list: List[str]) -> List[str]:
 
     new_words = word_list
 
@@ -320,9 +322,9 @@ def apply_rules(rule_list: List[str], word_list: List[str], sound_classes: List[
             continue
 
         try:
-            curr_rule = rule(rule_str, sound_classes)
+            curr_rule = rule(rule_str)
 
-            new_words = [curr_rule.apply(word, sound_classes) for word in new_words]
+            new_words = [curr_rule.apply(word) for word in new_words]
 
         except rule.parseError:
             error_str = "Malformed sound change rule at line " + str(rule_counter) + ".\nKeep going? y/N"
@@ -360,9 +362,9 @@ if __name__ == '__main__':
 
     lexicon = [word for word in filter(lambda w: w not in args.null_strings, [line.strip() for line in args.lex_file])]
     rule_list = [rule.strip() for rule in args.rules_file]
-    phon_classes = parse_class_file(args.phon_classes_file)
+    rule.sound_classes = parse_class_file(args.phon_classes_file)
 
-    word_list = apply_rules(rule_list, lexicon, phon_classes)
+    word_list = apply_rules(rule_list, lexicon)
 
     # if there are any words to record, write to the output
     # otherwise don't mess with the output file
