@@ -7,45 +7,43 @@ from typing import List, Dict, Tuple, TextIO
 from warnings import warn
 from time import time
 
-class sound_class:
+class sound_class(set):
 
-    def __init__(self, def_string: str, class_list: dict = None) -> None:
-        self.name, self.member_string = def_string.split("=")
-        self.members = []
-
-        if "," in self.member_string:
-            member_list = self.member_string.split(",")
-        else:
-            member_list = list(self.member_string)
-
-        for member in member_list:
+    def __init__(self, name, sound_list: list[str] = None, class_list: dict = None) -> None:
+        self.name = name
+        for member in sound_list:
             if class_list and member in class_list:
                 # member is a sound class
-                self.add_member(class_list[member])
+                self.add(class_list[member])
             else:
                 # member is a regular string
-                self.add_member(member)
+                self.add(member)
 
     def __str__(self):
-        return self.name + "=" + self.member_string
+        return self.name
     
     def __repr__(self):
-        return str(self)
+        return self.name + "=" + "".join(self)
 
-    def add_member(self, pMember) -> None:
-        self.members.append(pMember)
-
+    def __iter__(self):
+        """Overrides the set's default iter method so that all member sound classes are iterated through too.
+        The result is that `for sound in sound_class` will go through every sound sound_class would match."""
+        for member in self:
+            if isinstance(member, sound_class):
+                yield from member
+            else:
+                yield member
 
     def get_string_matches(self) -> List[str]:
         "Returns a list of regex-escaped strings that correspond to the sounds of the class"
 
         string_matches = []
 
-        for member in self.members:
-            if type(member) is str:
+        for member in self:
+            if isinstance(member, str):
                 string_matches.append(re.escape(member))
 
-            elif type(member) is sound_class:
+            elif isinstance(member, sound_class):
                 string_matches += member.get_string_matches()
 
         return string_matches
@@ -78,16 +76,25 @@ def parse_class_file(pFile: TextIO) -> Dict[sound_class]:
         return classes
 
     for line in pFile:
+        line = line.strip()
 
-        if line.startswith('%') or line.startswith('\n'):
+        if line.startswith('%') or line == "":
             continue # the line is either empty or a comment
 
         # make sure the line is a well-formed class string with no illegal characters
         assert(re.fullmatch(r"[^#=]+=[^#=]+", line))
 
-        new_class = sound_class(line.strip(), classes)
+        name, member_string = line.split("=")
+        sounds = []
 
-        classes.update({new_class.name: new_class})
+        if "," in member_string:
+            sounds = member_string.split(",")
+        else:
+            sounds = list(member_string)
+
+        new_class = sound_class(sounds, classes)
+
+        classes.update({name: new_class})
 
     return classes
 
