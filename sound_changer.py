@@ -249,13 +249,13 @@ class rule:
                     group_count = 0
                     for sound_match in match_groups:
                         # grab the corresponding sound class
-                        sound_class = target_classes[group_count]
+                        target_class = target_classes[group_count]
 
                         # sub in the match for the sound class in the target regex
-                        target_regex = re.sub(sound_class.name, sound_match, target_regex)
+                        target_regex = re.sub(target_class.name, sound_match, target_regex)
 
                         # the sound_match is escaped because the get_string_matches() strings are escaped
-                        idx = sound_class.get_string_matches().index(re.escape(sound_match))
+                        idx = target_class.get_string_matches().index(re.escape(sound_match))
                         
                         if len(replacement_classes) > group_count:
                             repl_class = replacement_classes[group_count]
