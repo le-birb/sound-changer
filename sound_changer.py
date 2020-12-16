@@ -3,7 +3,7 @@ import argparse
 # this library works much better with unicode than the built in re
 import regex as re
 
-from typing import Iterable, Tuple, TextIO
+from typing import Dict, Iterable, List, Tuple, TextIO
 from warnings import warn
 from time import time
 
@@ -34,7 +34,7 @@ class sound_class(set):
             else:
                 yield member
 
-    def get_string_matches(self) -> list[str]:
+    def get_string_matches(self) -> List[str]:
         "Returns a list of regex-escaped strings that correspond to the sounds of the class"
 
         string_matches = []
@@ -84,7 +84,7 @@ class sound_class(set):
         return sound_class(name, sounds)
 
 
-def parse_class_file(pFile: TextIO) -> dict[str, sound_class]:
+def parse_class_file(pFile: TextIO) -> Dict[str, sound_class]:
 
     classes = {}
 
@@ -115,7 +115,7 @@ def capture_group(s: str) -> str:
 
 class rule:
 
-    sound_classes: dict[str: sound_class] = {}
+    sound_classes: Dict[str: sound_class] = {}
 
     class parse_error(Exception):
         """Thrown when rule parsing encounters an error, typically a syntax error"""
@@ -214,8 +214,8 @@ class rule:
             return re.sub(self.regex_match, self.replacement, word)
         
         else:
-            target_classes: list[sound_class] = []
-            replacement_classes: list[sound_class] = []
+            target_classes: List[sound_class] = []
+            replacement_classes: List[sound_class] = []
 
             for class_name in rule.sound_classes:
                 if class_name in self.target:
@@ -306,7 +306,7 @@ def ask_to_continue(error_str: str) -> bool:
             print("Please enter one of: yYnN")
 
 
-def apply_rules(rule_list: list[str], word_list: list[str]) -> list[str]:
+def apply_rules(rule_list: List[str], word_list: List[str]) -> List[str]:
 
     new_words = word_list
 
