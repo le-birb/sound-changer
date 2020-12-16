@@ -410,8 +410,12 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
             break
 
         else:
-            new_class = sound_class.parse_string(line)
-            sound_classes.update({new_class.name: new_class})
+            try:
+                new_class = sound_class.parse_string(line, sound_classes)
+                sound_classes.update({new_class.name: new_class})
+            except sound_class.parse_error:
+                print(line)
+                raise
     
     rule.sound_classes = sound_classes
 
