@@ -48,7 +48,6 @@ class sound_class(set):
 
         return string_matches
 
-
     def get_regex(self)-> str:
         "Returns a regular expression string that matches any member of the class"
 
@@ -66,7 +65,24 @@ class sound_class(set):
         
         return regex
 
-# end sound_class
+    class parse_error(Exception):
+        "Thrown when sound class parsing encounters an error"
+        pass
+
+    def parse_string(string: str):
+        if not re.fullmatch(r"[^#=]+=[^#=]+", string):
+            raise sound_class.parse_error
+
+        name, member_string = string.split("=")
+        sounds = []
+
+        if "," in member_string:
+            sounds = member_string.split(",")
+        else:
+            sounds = list(member_string)
+
+        return sound_class(name, sounds)
+
 
 def parse_class_file(pFile: TextIO) -> Dict[sound_class]:
 
@@ -81,20 +97,9 @@ def parse_class_file(pFile: TextIO) -> Dict[sound_class]:
         if line.startswith('%') or line == "":
             continue # the line is either empty or a comment
 
-        # make sure the line is a well-formed class string with no illegal characters
-        assert(re.fullmatch(r"[^#=]+=[^#=]+", line))
+        new_class = sound_class.parse_string(line)
 
-        name, member_string = line.split("=")
-        sounds = []
-
-        if "," in member_string:
-            sounds = member_string.split(",")
-        else:
-            sounds = list(member_string)
-
-        new_class = sound_class(sounds, classes)
-
-        classes.update({name: new_class})
+        classes.update({new_class.name: new_class})
 
     return classes
 
