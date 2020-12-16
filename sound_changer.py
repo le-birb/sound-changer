@@ -3,13 +3,13 @@ import argparse
 # this library works much better with unicode than the built in re
 import regex as re
 
-from typing import List, Dict, Tuple, TextIO
+from typing import Iterable, List, Dict, Tuple, TextIO
 from warnings import warn
 from time import time
 
 class sound_class(set):
 
-    def __init__(self, name, sound_list: list[str] = None, class_list: dict = None) -> None:
+    def __init__(self, name, sound_list: Iterable[str] = None, class_list: dict = None) -> None:
         self.name = name
         for member in sound_list:
             if class_list and member in class_list:
