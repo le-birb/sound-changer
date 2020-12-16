@@ -378,9 +378,12 @@ comment_chars = "%#"
 def parse_rule_file(rule_file: TextIO) -> List[rule]:
 
     sound_classes: Dict[str, sound_class] = {}
+
+    line_counter = 0
     
     # start with checking for sound class definitions
     for line in rule_file:
+        line_counter += 1
         line = line.strip()
 
         if any(line.startswith(c) for c in comment_chars) or is_blank(line):
@@ -420,7 +423,7 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
                 new_class = sound_class.parse_string(line, sound_classes)
                 sound_classes.update({new_class.name: new_class})
             except sound_class.parse_error:
-                print(line)
+                print(line_counter, line, sep = ": ")
                 raise
     
     rule.sound_classes = sound_classes
@@ -429,6 +432,7 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
 
     # continue looping, but now we have different rules
     for line in rule_file:
+        line_counter += 1
         line = line.strip()
 
         if any(line.startswith(c) for c in comment_chars) or is_blank(line):
@@ -436,7 +440,13 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
             continue
 
         else:
-            rule_list.append(rule(line))
+            try:
+                rule_list.append(rule(line))
+            except rule.parse_error:
+                error_str = "Malformed sound change rule at line {}.\nKeep going? y/N".format(line_counter)
+                if not ask_to_continue(error_str):
+                    # return an empty list; no changes 
+                    return []
     
     return rule_list
 
