@@ -175,6 +175,8 @@ class rule:
         return target, repl, pre_env, post_env
 
     def __init__(self, string: str):
+        # TODO: refactor parsing of rules completely
+        # likely to just do this when updating how rules work in general
 
         # the regex for a word boundary is \b, but the \b sequence in python strings behaves really weirdly
         # and it needs to be double escaped here to work, even in a raw string
