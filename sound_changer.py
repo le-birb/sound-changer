@@ -28,7 +28,7 @@ class sound_class(set):
     def __iter__(self):
         """Overrides the set's default iter method so that all member sound classes are iterated through too.
         The result is that `for sound in sound_class` will go through every sound sound_class would match."""
-        for member in self:
+        for member in super().__iter__():
             if isinstance(member, sound_class):
                 yield from member
             else:
