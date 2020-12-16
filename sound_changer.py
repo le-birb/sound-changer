@@ -410,7 +410,7 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
             else:
                 sound_classes[name] = new_class
 
-        elif line == "rules:":
+        elif line.startswith("rules:"):
             # classes are over, move on to rules
             break
 
