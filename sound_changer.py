@@ -112,7 +112,7 @@ class rule:
 
     sound_classes: dict[str: sound_class] = {}
 
-    class parseError(Exception):
+    class parse_error(Exception):
         """Thrown when rule parsing encounters an error, typically a syntax error"""
         pass
 
@@ -131,7 +131,7 @@ class rule:
                 break
         else:
             # no suitable arrow found
-            raise rule.parseError()
+            raise rule.parse_error()
         
         if "/" in string:
             repl, env = string.split("/", maxsplit = 1)
@@ -162,7 +162,7 @@ class rule:
             
             except ValueError:
                 # if there are too many values to unpack, more than 1 underscore was used, and that's not allowed
-                raise rule.parseError() from None
+                raise rule.parse_error() from None
         
         else:
             pre_env = post_env = ""
@@ -326,7 +326,7 @@ def apply_rules(rule_list: List[str], word_list: List[str]) -> List[str]:
 
             new_words = [curr_rule.apply(word) for word in new_words]
 
-        except rule.parseError:
+        except rule.parse_error:
             error_str = "Malformed sound change rule at line " + str(rule_counter) + ".\nKeep going? y/N"
             if not ask_to_continue(error_str):
                 # return an empty list; no changes 
