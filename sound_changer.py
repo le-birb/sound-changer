@@ -2,8 +2,9 @@
 import argparse
 # this library works much better with unicode than the built in re
 import regex as re
+from itertools import product
 
-from typing import Dict, Iterable, List, Tuple, TextIO
+from typing import Dict, Iterable, List, Tuple, TextIO, Union
 from warnings import warn
 from time import time
 
@@ -345,6 +346,83 @@ def apply_rules(rule_list: List[str], word_list: List[str]) -> List[str]:
             raise
 
     return new_words
+
+
+def sound_class_mult(base_class: sound_class, mult: Union[Iterable[str], str]) -> sound_class:
+    if isinstance(mult, str):
+        # if mult is just a string, wrap it in a tuple for the next part
+        mult = tuple(mult)
+    # pair off each mult with "" to make each individually optional
+    # so that for, say, A=abc
+    # A*(1,2) = a,b,c,a1,b1,c1,a2,b2,c2,a12,b12,c12
+    # instead of a,b,c,a1,a2,b1,b2,c1,c2
+    # combinations() isn't used because we need the sounds to always be present
+    sound_sets = product(base_class, *(("", sound) for sound in mult))
+    new_sounds = list("".join(s) for s in sound_sets)
+    return sound_class("", new_sounds)
+
+def is_blank(string: str) -> bool:
+    return re.fullmatch("\s*", string)
+
+comment_chars = "%#"
+
+def parse_rule_file(rule_file: TextIO) -> List[rule]:
+
+    sound_classes: Dict[str, sound_class] = {}
+    
+    # start with checking for sound class definitions
+    for line in rule_file:
+        line = line.strip()
+
+        if any(line.startswith(c) for c in comment_chars) or is_blank(line):
+            # skip comments and blank lines
+            continue
+
+        elif "*" in line:
+            name, expression = line.split("=")
+            base, multiplicand = expression.split("*")
+            base = sound_classes[base]
+
+            # if multiplicand looks like (stuff)
+            if re.fullmatch("\(.*\)", multiplicand):
+                # strip parentheses
+                multiplicand = multiplicand[1:-1]
+                # get comma-separated pieces to multiply
+                multiplicand = ",".split(multiplicand)
+
+            new_class = sound_class_mult(base, multiplicand)
+            new_class.name = name
+
+            if name in sound_classes:
+                sound_classes[name].update(new_class)
+            else:
+                sound_classes[name] = new_class
+
+        elif line == "rules:":
+            # classes are over, move on to rules
+            break
+
+        else:
+            new_class = sound_class.parse_string(line)
+            sound_classes.update({new_class.name: new_class})
+    
+    rule.sound_classes = sound_classes
+
+    rule_list: List[rule] = []
+
+    # continue looping, but now we have different rules
+    for line in rule_file:
+        line = line.strip()
+
+        if any(line.startswith(c) for c in comment_chars) or is_blank(line):
+            # skip comments and blank lines
+            continue
+
+        else:
+            rule_list.append(rule(line))
+    
+    return rule_list
+
 
 if __name__ == '__main__':
 
