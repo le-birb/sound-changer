@@ -9,6 +9,7 @@ from warnings import warn
 from time import time
 
 class sound_class(set):
+    #TODO: remember that these need to be ordered for rules like T -> D / V_V to work
 
     def __init__(self, name, sound_list: Iterable[str] = None, previous_classes: dict = None) -> None:
         self.name = name
