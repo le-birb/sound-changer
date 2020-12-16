@@ -9,24 +9,21 @@ from time import time
 
 class sound_class:
 
-    def __init__(self, def_string: str, class_list = None) -> None:
+    def __init__(self, def_string: str, class_list: dict = None) -> None:
         self.name, self.member_string = def_string.split("=")
         self.members = []
 
         if "," in self.member_string:
             member_list = self.member_string.split(",")
         else:
-            member_list = [char for char in self.member_string]
+            member_list = list(self.member_string)
 
         for member in member_list:
-            if class_list:
-                for sound_class in class_list:
-                    if sound_class.name == member:
-                        self.add_member(sound_class)
-                        break
-                else:
-                    self.add_member(member)
+            if class_list and member in class_list:
+                # member is a sound class
+                self.add_member(class_list[member])
             else:
+                # member is a regular string
                 self.add_member(member)
 
     def __str__(self):
