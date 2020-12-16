@@ -378,6 +378,10 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
             # skip comments and blank lines
             continue
 
+        elif line.startswith("classes:"):
+            # this will probably do something at some point but for now it is skipped
+            continue
+
         elif "*" in line:
             name, expression = line.split("=")
             base, multiplicand = expression.split("*")
