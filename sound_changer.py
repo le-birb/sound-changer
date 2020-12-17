@@ -2,14 +2,15 @@
 import argparse
 # this library works much better with unicode than the built in re
 import regex as re
+# this library class has pretty much exactly what I want for sound classes
+from ordered_set import OrderedSet as ordered_set
 from itertools import product
 
 from typing import Dict, Iterable, List, Tuple, TextIO, Union
 from warnings import warn
 from time import time
 
-class sound_class(set):
-    #TODO: remember that these need to be ordered for rules like T -> D / V_V to work
+class sound_class(ordered_set):
 
     def __init__(self, name, sound_list: Iterable[str] = None, previous_classes: dict = None) -> None:
         self.name = name
@@ -28,7 +29,7 @@ class sound_class(set):
         return self.name + "=" + ",".join(sound for sound in self)
 
     def __iter__(self):
-        """Overrides the set's default iter method so that all member sound classes are iterated through too.
+        """Overrides the ordered set's default iter method so that all member sound classes are iterated through too.
         The result is that `for sound in sound_class` will go through every sound sound_class would match."""
         for member in super().__iter__():
             if isinstance(member, sound_class):
