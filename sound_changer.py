@@ -13,6 +13,7 @@ from time import time
 class sound_class(ordered_set):
 
     def __init__(self, name, sound_list: Iterable[str] = None, previous_classes: dict = None) -> None:
+        super().__init__()
         self.name = name
         for member in sound_list:
             if previous_classes and member in previous_classes:
