@@ -92,26 +92,6 @@ class sound_class(ordered_set):
         return sound_class(name, sounds, sound_classes)
 
 
-def parse_class_file(pFile: TextIO) -> Dict[str, sound_class]:
-
-    classes = {}
-
-    if not pFile:
-        return classes
-
-    for line in pFile:
-        line = line.strip()
-
-        if line.startswith('%') or line == "":
-            continue # the line is either empty or a comment
-
-        new_class = sound_class.parse_string(line, classes)
-
-        classes.update({new_class.name: new_class})
-
-    return classes
-
-
 def lookaround(behind: str, match: str, forward: str) -> str:
     return "(?<=" + behind + ")" + match + "(?=" + forward + ")"
 
@@ -291,11 +271,6 @@ class rule:
                 target_regex = lookaround(self.pre_env, target_regex, self.post_env)
                 return re.sub(target_regex,replacement_string, word)
 
-# end rule
-
-
-def raw_str(s: str):
-    return s.encode('unicode-escape').decode()
 
 def ask_to_continue(error_str: str) -> bool:
     while True:
@@ -441,8 +416,6 @@ if __name__ == '__main__':
     # r+ is not used since that can't create a new file
     parser.add_argument("-o", "--out", action = "store", type = argparse.FileType("a", encoding = "utf-8"),\
         dest = "out_file", default = None)
-    parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"),\
-        dest = "phon_classes_file", default = None)
     parser.add_argument("--time", action = "store_true")
 
     args = parser.parse_args()
