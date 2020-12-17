@@ -424,8 +424,10 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
                 new_class = sound_class.parse_string(line, sound_classes)
                 sound_classes.update({new_class.name: new_class})
             except sound_class.parse_error:
-                print(line_counter, line, sep = ": ")
-                raise
+                error_str = "Bad sound class definition found at line {}:\n{}\nKeep going?".format(line_counter, line)
+                if not ask_to_continue(error_str):
+                    # return an empty list; no changes 
+                    return []
     
     rule.sound_classes = sound_classes
 
