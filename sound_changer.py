@@ -438,7 +438,7 @@ if __name__ == '__main__':
     parser.add_argument("rules_file", action = "store", type = argparse.FileType("r", encoding = "utf-8"))
     # the out file is read in with a because that won't delete the contents immediately
     # if the program exits before finishing, an existing file should not be wiped
-    # r+ is note used since that can't create a new file
+    # r+ is not used since that can't create a new file
     parser.add_argument("-o", "--out", action = "store", type = argparse.FileType("a", encoding = "utf-8"),\
         dest = "out_file", default = None)
     parser.add_argument("-c", "--classes", action = "store", type = argparse.FileType("r", encoding = "utf-8"),\
