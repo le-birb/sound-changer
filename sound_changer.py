@@ -38,6 +38,7 @@ class sound_class(ordered_set):
             else:
                 yield member
 
+    # we need this so that sound classes can be added to themselves, since set members must be hashable
     def __hash__(self):
         return hash(self.name)
 
