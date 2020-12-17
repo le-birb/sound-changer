@@ -314,42 +314,16 @@ def ask_to_continue(error_str: str) -> bool:
             print("Please enter one of: yYnN")
 
 
-def apply_rules(rule_list: List[str], word_list: List[str]) -> List[str]:
+def apply_rules(rule_list: List[rule], word_list: List[str]) -> List[str]:
 
     new_words = word_list
 
-    rule_counter = 0
-
-    for rule_str in rule_list:
-        rule_counter += 1
-
-        if rule_str == "\n" or rule_str == "" or rule_str.startswith('%'):
-            continue
-
-        if rule_str.startswith(":print:"):
-            suffix = rule_str[len(":print:"):].strip()
-            if suffix:
-                out_f = open(args.rules_file.name + suffix, "w")
-            else:
-                out_f = open(args.rules_file.name + "_debug", "w")
-            out_f.write("\n".join(word for word in new_words))
-            out_f.close()
-            continue
-
+    for rule in rule_list:
         try:
-            curr_rule = rule(rule_str)
-
-            new_words = [curr_rule.apply(word) for word in new_words]
-
-        except rule.parse_error:
-            error_str = "Malformed sound change rule at line " + str(rule_counter) + ".\nKeep going? y/N"
-            if not ask_to_continue(error_str):
-                # return an empty list; no changes 
-                return []
-        
+            new_words = [rule.apply(word) for word in new_words]
         except:
             # print the current rule to help in debugging
-            print(curr_rule) # type: ignore
+            print(rule) # type: ignore
             raise
 
     return new_words
