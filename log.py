@@ -4,7 +4,10 @@ from os import path
 class logger:
 
     def __init__(self, dir = path.dirname(__file__), file = "soundchanger_log"):
-        self.log_file = open(path.join(dir, file), "w")
+        if dir:
+            self.log_file = open(path.join(dir, file), "w")
+        else:
+            self.log_file = open(file, "w")
 
     def log(self, message: str):
         self.log_file.write(message + "\n")
