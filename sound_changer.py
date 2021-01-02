@@ -1,10 +1,6 @@
 
 import argparse
-from sound_class import sound_class
 from rule import rule
-# this library works much better with unicode than the built in re
-import regex as re
-from itertools import product
 
 from typing import List
 from time import time
