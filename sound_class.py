@@ -7,7 +7,7 @@ from ordered_set import OrderedSet as ordered_set
 
 class sound_class(ordered_set):
 
-    def __init__(self, name, sound_list: Iterable[str] = None, previous_classes: dict = None) -> None:
+    def __init__(self, name, sound_list: Iterable[str] = None, previous_classes: Dict[str, "sound_class"] = None) -> None:
         super().__init__()
         self.name = name
         for member in sound_list:
