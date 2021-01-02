@@ -37,7 +37,7 @@ class sound_class(ordered_set):
     def __hash__(self):
         return hash(self.name)
 
-    def __mult__(self, other):
+    def __mul__(self, other):
         """Returns a sound class formed from combination of its sounds with the items in mult.
         Useful for making classes that include long sounds, for instance, as (class file definition):
         T=ptk
