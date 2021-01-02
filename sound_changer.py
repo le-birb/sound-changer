@@ -6,24 +6,10 @@ from rule import rule
 import regex as re
 from itertools import product
 
-from typing import Dict, Iterable, List, TextIO, Union
+from typing import List
 from time import time
 
-def ask_to_continue(error_str: str) -> bool:
-    while True:
-        print(error_str)
-        choice = input("> ")
-
-        if choice.lower() == "n" or choice == "":
-            print("Exiting...")
-            return False
-
-        elif choice.lower() == "y":
-            print("Resuming sound changes")
-            return True
-
-        else:
-            print("Please enter one of: yYnN")
+from parsing import parse_rule_file
 
 
 def apply_rules(rule_list: List[rule], word_list: List[str]) -> List[str]:
@@ -39,89 +25,6 @@ def apply_rules(rule_list: List[rule], word_list: List[str]) -> List[str]:
             raise
 
     return new_words
-
-
-def is_blank(string: str) -> bool:
-    return re.fullmatch("\s*", string)
-
-comment_chars = "%#"
-
-def parse_rule_file(rule_file: TextIO) -> List[rule]:
-
-    sound_classes: Dict[str, sound_class] = {}
-
-    line_counter = 0
-    
-    # start with checking for sound class definitions
-    for line in rule_file:
-        line_counter += 1
-        line = line.strip()
-
-        if any(line.startswith(c) for c in comment_chars) or is_blank(line):
-            # skip comments and blank lines
-            continue
-
-        elif line.startswith("classes:"):
-            # this will probably do something at some point but for now it is skipped
-            continue
-
-        elif "*" in line:
-            name, expression = line.split("=")
-            base, multiplicand = expression.split("*")
-            base = sound_classes[base]
-
-            # if multiplicand looks like (stuff)
-            if re.fullmatch("\(.*\)", multiplicand):
-                # strip parentheses
-                multiplicand = multiplicand[1:-1]
-                # get comma-separated pieces to multiply
-                multiplicand = ",".split(multiplicand)
-
-            new_class: sound_class = base * multiplicand
-            new_class.name = name
-
-            if name in sound_classes:
-                sound_classes[name].update(new_class)
-            else:
-                sound_classes[name] = new_class
-
-        elif line.startswith("rules:"):
-            # classes are over, move on to rules
-            break
-
-        else:
-            try:
-                new_class = sound_class.parse_string(line, sound_classes)
-                sound_classes.update({new_class.name: new_class})
-            except sound_class.parse_error:
-                error_str = "Bad sound class definition found at line {}:\n{}\nKeep going?".format(line_counter, line)
-                if not ask_to_continue(error_str):
-                    # return an empty list; no changes 
-                    return []
-    
-    rule.sound_classes = sound_classes
-
-    rule_list: List[rule] = []
-
-    # continue looping, but now we have different rules
-    for line in rule_file:
-        line_counter += 1
-        line = line.strip()
-
-        if any(line.startswith(c) for c in comment_chars) or is_blank(line):
-            # skip comments and blank lines
-            continue
-
-        else:
-            try:
-                rule_list.append(rule(line))
-            except rule.parse_error:
-                error_str = "Malformed sound change rule at line {}.\nKeep going? y/N".format(line_counter)
-                if not ask_to_continue(error_str):
-                    # return an empty list; no changes 
-                    return []
-    
-    return rule_list
 
 
 if __name__ == '__main__':
