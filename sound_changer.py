@@ -77,7 +77,7 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
                 # get comma-separated pieces to multiply
                 multiplicand = ",".split(multiplicand)
 
-            new_class = base * multiplicand
+            new_class: sound_class = base * multiplicand
             new_class.name = name
 
             if name in sound_classes:
