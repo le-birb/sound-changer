@@ -55,9 +55,6 @@ class sound_class(ordered_set):
         # does not need a reference to the other sound classes since it is guaranteed to only contain sounds (strings)
         return sound_class("", new_sounds)
 
-    def __rmult__(self, other):
-        return self * other
-
     def get_string_matches(self) -> List[str]:
         "Returns a list of regex-escaped strings that correspond to the sounds of the class"
 
