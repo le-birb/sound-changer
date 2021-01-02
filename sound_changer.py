@@ -41,24 +41,6 @@ def apply_rules(rule_list: List[rule], word_list: List[str]) -> List[str]:
     return new_words
 
 
-def sound_class_mult(base_class: sound_class, mult: Union[Iterable[str], str]) -> sound_class:
-    """Returns a sound class formed from combination of its sounds with the items in mult.
-    Useful for making classes that include long sounds, for instance, as (class file definition):
-    T=ptk
-    T=T*ː #T=p,t,k,pː,tː,kː"""
-    if isinstance(mult, str):
-        # if mult is just a string, wrap it in a tuple for the next part
-        mult = tuple(mult)
-    # pair off each mult with "" to make each individually optional
-    # so that for, say, A=abc
-    # A*(1,2) = a,b,c,a1,b1,c1,a2,b2,c2,a12,b12,c12
-    # instead of a,b,c,a1,a2,b1,b2,c1,c2
-    # combinations() isn't used because we need the sounds to always be present
-    sound_sets = product(base_class, *(("", sound) for sound in mult))
-    new_sounds = list("".join(s) for s in sound_sets)
-    # does not need a reference to the otehr sound classes since it is guaranteed to only contain sounds (strings)
-    return sound_class("", new_sounds)
-
 def is_blank(string: str) -> bool:
     return re.fullmatch("\s*", string)
 
@@ -95,7 +77,7 @@ def parse_rule_file(rule_file: TextIO) -> List[rule]:
                 # get comma-separated pieces to multiply
                 multiplicand = ",".split(multiplicand)
 
-            new_class = sound_class_mult(base, multiplicand)
+            new_class = base * multiplicand
             new_class.name = name
 
             if name in sound_classes:
