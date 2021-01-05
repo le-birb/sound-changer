@@ -82,6 +82,6 @@ def parse_rules(file: FileIO, start_line) -> List[rule]:
 def parse_rule_file(file):
     classes, offset = parse_sound_classes(file)
 
-    rule.sound_classes = classes
+    sound_class.class_map = classes
 
     return parse_rules(file, offset)

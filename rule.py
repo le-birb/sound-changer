@@ -15,9 +15,6 @@ def capture_group(s: str) -> str:
         return "("+s+")"
 
 class rule:
-
-    sound_classes: Dict[str, sound_class] = {}
-
     class parse_error(Exception):
         """Thrown when rule parsing encounters an error, typically a syntax error"""
         pass
@@ -91,13 +88,13 @@ class rule:
         self.pre_class_count = 0
         self.post_class_count = 0
         # substitute in sound classes
-        for class_name in rule.sound_classes:
+        for class_name in sound_class.class_map:
             if class_name in self.pre_env:
-                self.pre_env = re.sub(class_name, capture_group(rule.sound_classes[class_name].get_regex()), self.pre_env)
+                self.pre_env = re.sub(class_name, capture_group(sound_class.class_map[class_name].get_regex()), self.pre_env)
                 self.pre_class_count += 1
 
             if class_name in self.post_env:
-                self.post_env = re.sub(class_name, capture_group(rule.sound_classes[class_name].get_regex()), self.post_env)
+                self.post_env = re.sub(class_name, capture_group(sound_class.class_map[class_name].get_regex()), self.post_env)
                 self.post_class_count += 1
 
         # wrap environment in lookaround so it isn't deleted when substitution occurs
@@ -111,18 +108,18 @@ class rule:
 
     def apply(self, word: str) -> str:
 
-        if not rule.sound_classes:
+        if not sound_class.class_map:
             return re.sub(self.regex_match, self.replacement, word)
         
         else:
             target_classes: List[sound_class] = []
             replacement_classes: List[sound_class] = []
 
-            for class_name in rule.sound_classes:
+            for class_name in sound_class.class_map:
                 if class_name in self.target:
-                    target_classes.append(rule.sound_classes[class_name])
+                    target_classes.append(sound_class.class_map[class_name])
                 if class_name in self.replacement:
-                    replacement_classes.append(rule.sound_classes[class_name])
+                    replacement_classes.append(sound_class.class_map[class_name])
 
             # no sound classes to worry about
             if len(target_classes) == 0 == len(replacement_classes) == 0:

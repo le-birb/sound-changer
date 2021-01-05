@@ -8,6 +8,8 @@ from ordered_set import OrderedSet as ordered_set
 
 class sound_class(ordered_set):
 
+    class_map: Dict[str, "sound_class"] = {}
+
     def __init__(self, name, sound_list: Iterable[str] = None, previous_classes: Dict[str, "sound_class"] = None) -> None:
         super().__init__()
         self.name = name
