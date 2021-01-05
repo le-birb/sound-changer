@@ -38,7 +38,7 @@ class sound_class(ordered_set):
 
     # we need this so that sound classes can be added to themselves, since set members must be hashable
     def __hash__(self):
-        return hash(self.name)
+        return hash(repr(self))
 
     def __mul__(self, other):
         """Returns a sound class formed from combination of its sounds with the items in mult.
