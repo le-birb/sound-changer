@@ -47,7 +47,7 @@ class sound_class(ordered_set):
         T=T*ː #T=p,t,k,pː,tː,kː"""
         if isinstance(other, str):
             # if mult is just a string, wrap it in a tuple for the next part
-            other = tuple(other)
+            other = (other,)
         # pair off each mult with "" to make each individually optional
         # so that for, say, A=abc
         # A*(1,2) = a,b,c,a1,b1,c1,a2,b2,c2,a12,b12,c12
