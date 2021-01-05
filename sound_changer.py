@@ -17,7 +17,7 @@ def apply_rules(rule_list: List[rule], word_list: List[str]) -> List[str]:
             new_words = [rule.apply(word) for word in new_words]
         except:
             # print the current rule to help in debugging
-            print(rule) # type: ignore
+            print(rule)
             raise
 
     return new_words
