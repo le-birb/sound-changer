@@ -10,13 +10,13 @@ class sound_class(ordered_set):
 
     class_map: Dict[str, "sound_class"] = {}
 
-    def __init__(self, name, sound_list: Iterable[str] = None, previous_classes: Dict[str, "sound_class"] = None) -> None:
+    def __init__(self, name, sound_list: Iterable[str] = None) -> None:
         super().__init__()
         self.name = name
         for member in sound_list:
-            if previous_classes and member in previous_classes:
+            if member in sound_class.class_map:
                 # member is a sound class
-                self.add(previous_classes[member])
+                self.add(sound_class.class_map[member])
             else:
                 # member is a regular string
                 self.add(member)
