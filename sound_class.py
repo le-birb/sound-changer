@@ -90,21 +90,3 @@ class sound_class(ordered_set):
             regex = "[" + match_body + "]"
         
         return regex
-
-    class parse_error(Exception):
-        "Thrown when sound class parsing encounters an error"
-        pass
-
-    def parse_string(string: str, sound_classes: Dict[str, "sound_class"] = None):
-        if not re.fullmatch(r"[^#=]+=[^#=]+", string):
-            raise sound_class.parse_error
-
-        name, member_string = string.split("=")
-        sounds = []
-
-        if "," in member_string:
-            sounds = member_string.split(",")
-        else:
-            sounds = list(member_string)
-
-        return sound_class(sounds, name)
