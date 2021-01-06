@@ -1,7 +1,7 @@
 
 from io import FileIO
 from itertools import product
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Union
 import regex as re
 from ordered_set import OrderedSet as ordered_set
 
@@ -10,16 +10,12 @@ class sound_class(ordered_set):
 
     class_map: Dict[str, "sound_class"] = {}
 
-    def __init__(self, name, sound_list: Iterable[str] = None) -> None:
-        super().__init__()
+    def __init__(self, sound_list: Iterable[Union[str, "sound_class"]] = None, name: str = "") -> None:
+        if sound_list:
+            super().__init__(sound_list)
+        else:
+            super().__init__()
         self.name = name
-        for member in sound_list:
-            if member in sound_class.class_map:
-                # member is a sound class
-                self.add(sound_class.class_map[member])
-            else:
-                # member is a regular string
-                self.add(member)
 
     def __str__(self):
         return self.name
@@ -56,7 +52,7 @@ class sound_class(ordered_set):
         sound_sets = product(self, *(("", sound) for sound in other))
         new_sounds = list("".join(s) for s in sound_sets)
         # does not need a reference to the other sound classes since it is guaranteed to only contain sounds (strings)
-        return sound_class("", new_sounds)
+        return sound_class(new_sounds)
 
     def get_string_matches(self) -> List[str]:
         "Returns a list of regex-escaped strings that correspond to the sounds of the class"
@@ -105,4 +101,4 @@ class sound_class(ordered_set):
         else:
             sounds = list(member_string)
 
-        return sound_class(name, sounds, sound_classes)
+        return sound_class(sounds, name)
