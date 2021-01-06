@@ -10,10 +10,11 @@ def is_blank(string: str) -> bool:
 
 comment_chars = "#%"
 
-
 def is_comment(string: str) -> bool:
     return any(string.startswith(c) for c in comment_chars)
 
+def remove_whitespace(string:str) -> str:
+    return re.sub(r"\s", "", string)
 
 def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
     sound_classes: Dict[str, sound_class] = {}
@@ -23,7 +24,7 @@ def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
     # start with checking for sound class definitions
     for line in file:
         line_counter += 1
-        line = line.strip()
+        line = remove_whitespace(line)
 
         if is_comment(line) or is_blank(line):
             continue
