@@ -1,8 +1,13 @@
 from io import FileIO
-from typing import Dict, List, Tuple
+from itertools import product
+from typing import Dict, List, Tuple, Union
 from sound_class import sound_class
 from rule import rule
 import regex as re
+
+
+class parse_error(Exception):
+    pass
 
 
 def is_blank(string: str) -> bool:
@@ -15,6 +20,39 @@ def is_comment(string: str) -> bool:
 
 def remove_whitespace(string:str) -> str:
     return re.sub(r"\s", "", string)
+
+class sound_sequence(list):
+    "Encapsulates lists of sounds to define a mul function that makes evaluation much easier."
+    def __mul__(self, other):
+        # If the other argument is a sound class, defer to sound_class's __rmul__
+        if isinstance(other, sound_class):
+            return NotImplemented
+
+        sound_sets = product(self, *(("", sound) for sound in other))
+        return sound_sequence("".join(s) for s in sound_sets)
+
+
+def eval_class_expression(expression: str) -> Union[sound_class, sound_sequence]:
+    if expression in sound_class.class_map:
+        return sound_class.class_map[expression]
+
+    # evaluate stuff in parentheses as a group: may remove this or change to have fuller parentheses support
+    elif re.fullmatch(r"\([^)]*\)", expression):
+        return eval_class_expression(expression[1:-1])
+
+    elif "*" in expression:
+        # rsplit here to evaluate from right to left, which will tend to put longer sounds first
+        left, right = expression.rsplit("*", maxsplit = 1)
+        return eval_class_expression(left) * eval_class_expression(right)
+
+    else:
+        if "," in expression:
+            sound_list = expression.split(",")
+        else:
+            sound_list = list(expression)
+
+        return sound_sequence(sound_list)
+
 
 def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
     sound_classes: Dict[str, sound_class] = {}
@@ -33,30 +71,25 @@ def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
             # this will probably do something at some point but for now it is skipped
             continue
 
-        elif "*" in line:
-            assignee, expression = line.split("=")
-            base, multiplicand = expression.split("*")
-            base = sound_classes[base]
-
-            # if multiplicand looks like (stuff)
-            if re.fullmatch("\(.*\)", multiplicand):
-                # strip parentheses
-                multiplicand = multiplicand[1:-1]
-                # get comma-separated pieces to multiply
-                multiplicand = ",".split(multiplicand)
-
-            new_class: sound_class = base * multiplicand
-            new_class.name = assignee
-
-            sound_classes[assignee] = new_class
-
         elif line.startswith("rules:"):
             # classes are over, move on to rules
             break
 
         else:
-            new_class = sound_class.parse_string(line, sound_classes)
-            sound_classes.update({new_class.name: new_class})
+            if "=" not in line:
+                raise parse_error("Line {}:".format(line_counter),\
+                            "Sound class definition must be of the form:\nname=expression")
+
+            name, expression = line.split('=', maxsplit = 1)
+
+            new_class = eval_class_expression(expression)
+            if not isinstance(new_class, sound_class):
+                new_class = sound_class(new_class)
+            new_class.name = name
+
+            sound_classes.update({name: new_class})
+
+    return sound_classes, line_counter
 
 
 
