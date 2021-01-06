@@ -50,7 +50,6 @@ class sound_class(ordered_set):
         # combinations() isn't used because we need the base sounds to always be present
         sound_sets = product(self, *(("", sound) for sound in other))
         new_sounds = list("".join(s) for s in sound_sets)
-        # does not need a reference to the other sound classes since it is guaranteed to only contain sounds (strings)
         return sound_class(new_sounds)
 
     def get_string_matches(self) -> List[str]:
