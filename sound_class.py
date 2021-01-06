@@ -45,10 +45,18 @@ class sound_class(ordered_set):
             other = (other,)
         # pair off each mult with "" to make each individually optional
         # so that for, say, A=abc
-        # A*(1,2) = a,b,c,a1,b1,c1,a2,b2,c2,a12,b12,c12
+        # A*(1,2) = a12,b12,c12,a1,b1,c1,a2,b2,c2,a,b,c
         # instead of a,b,c,a1,a2,b1,b2,c1,c2
         # combinations() isn't used because we need the base sounds to always be present
-        sound_sets = product(self, *(("", sound) for sound in other))
+        sound_sets = product(self, *((sound, "") for sound in other))
+        new_sounds = list("".join(s) for s in sound_sets)
+        return sound_class(new_sounds)
+
+    def __rmul__(self, other):
+        """Works like mul but prepending instead of appending."""
+        if isinstance(other, str):
+            other = (other,)
+        sound_sets = product(*((sound, "") for sound in other), self)
         new_sounds = list("".join(s) for s in sound_sets)
         return sound_class(new_sounds)
 
