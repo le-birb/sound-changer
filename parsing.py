@@ -1,5 +1,5 @@
 from io import FileIO
-from itertools import product
+from itertools import chain, product
 from typing import Dict, List, Tuple, Union
 from sound_class import sound_class
 from rule import rule
@@ -28,7 +28,7 @@ class sound_sequence(list):
         if isinstance(other, sound_class):
             return NotImplemented
 
-        sound_sets = product(self, *(("", sound) for sound in other))
+        sound_sets = product(self, chain(other, ("",) ))
         return sound_sequence("".join(s) for s in sound_sets)
 
 
