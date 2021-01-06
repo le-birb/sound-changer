@@ -119,13 +119,3 @@ def parse_rule_file(file):
     sound_class.class_map = classes
 
     return parse_rules(file, offset)
-
-
-if __name__ == "__main__":
-    # some simple unit tests
-    # TODO: make unit tests more official
-    sound_class.class_map = {'A': sound_class(eval_class_expression("abcd"), "A")}
-    c1 = eval_class_expression("A*n")
-    c2 = eval_class_expression("n*A")
-    c3 = eval_class_expression("ⁿ*A*ː")
-    pass
