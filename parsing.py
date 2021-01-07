@@ -63,37 +63,41 @@ def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
     sound_classes: Dict[str, sound_class] = {}
 
     line_counter = 0
-    
-    # start with checking for sound class definitions
-    for line in file:
-        line_counter += 1
-        line = remove_whitespace(line)
 
-        if is_comment(line) or is_blank(line):
-            continue
+    try:
+        # start with checking for sound class definitions
+        for line in file:
+            line_counter += 1
+            line = remove_whitespace(line)
 
-        elif line.startswith("classes:"):
-            # this will probably do something at some point but for now it is skipped
-            continue
+            if is_comment(line) or is_blank(line):
+                continue
 
-        elif line.startswith("rules:"):
-            # classes are over, move on to rules
-            break
+            elif line.startswith("classes:"):
+                # this will probably do something at some point but for now it is skipped
+                continue
 
-        else:
-            if "=" not in line:
-                raise parse_error("Line {}:".format(line_counter),\
-                            "Sound class definition must be of the form:\nname=expression")
+            elif line.startswith("rules:"):
+                # classes are over, move on to rules
+                break
 
-            name, expression = line.split('=', maxsplit = 1)
+            else:
+                if "=" not in line:
+                    raise parse_error("Sound class definition must be of the form:\nname=expression")
 
-            new_class = eval_class_expression(expression)
-            if not isinstance(new_class, sound_class):
-                new_class = sound_class(new_class)
-            new_class.name = name
+                name, expression = line.split('=', maxsplit = 1)
 
-            # TODO: add new_class to the global sound class list
-            sound_classes.update({name: new_class})
+                new_class = eval_class_expression(expression)
+                if not isinstance(new_class, sound_class):
+                    new_class = sound_class(new_class)
+                new_class.name = name
+
+                # TODO: add new_class to the global sound class list
+                sound_classes.update({name: new_class})
+
+    except parse_error:
+        parse_error.args[0] = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + parse_error.args[0] # type: ignore
+        raise parse_error
 
     return sound_classes, line_counter
 
