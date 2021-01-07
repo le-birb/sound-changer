@@ -61,7 +61,9 @@ class sound_class(ordered_set):
         return sound_class(new_sounds)
 
     def get_string_matches(self) -> List[str]:
-        "Returns a list of regex-escaped strings that correspond to the sounds of the class"
+        """DEPRECATED: just iterate though the sounds and escape them there if you need it
+        
+        Returns a list of regex-escaped strings that correspond to the sounds of the class"""
 
         string_matches = []
 
@@ -75,7 +77,9 @@ class sound_class(ordered_set):
         return string_matches
 
     def get_regex(self)-> str:
-        "Returns a regular expression string that matches any member of the class"
+        """DEPRECATED
+        
+        Returns a regular expression string that matches any member of the class"""
 
         string_matches = self.get_string_matches()
         

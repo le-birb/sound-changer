@@ -21,6 +21,11 @@ def is_comment(string: str) -> bool:
 def remove_whitespace(string:str) -> str:
     return re.sub(r"\s", "", string)
 
+
+#########################################################################################################################
+# class stuff here
+
+
 class sound_sequence(list):
     "Encapsulates lists of sounds to define a mul function that makes evaluation much easier."
     def __mul__(self, other):
@@ -92,6 +97,10 @@ def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
     return sound_classes, line_counter
 
 
+######################################################################################################################
+# rule stuff here
+
+
 
 def parse_rules(file: FileIO, start_line) -> List[rule]:
     rule_list: List[rule] = []
@@ -112,6 +121,8 @@ def parse_rules(file: FileIO, start_line) -> List[rule]:
     return rule_list
 
 
+#########################################################################################################################
+# overall parsing
 
 def parse_rule_file(file):
     classes, offset = parse_sound_classes(file)
