@@ -92,6 +92,7 @@ def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
                 new_class = sound_class(new_class)
             new_class.name = name
 
+            # TODO: add new_class to the global sound class list
             sound_classes.update({name: new_class})
 
     return sound_classes, line_counter
