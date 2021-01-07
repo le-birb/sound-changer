@@ -112,7 +112,7 @@ def parse_rules(file: FileIO, start_line) -> List[rule]:
         line_counter += 1
         line = line.strip()
 
-        if any(line.startswith(c) for c in comment_chars) or is_blank(line):
+        if is_comment(line) or is_blank(line):
             # skip comments and blank lines
             continue
 
