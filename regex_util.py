@@ -2,6 +2,10 @@
 from typing import Iterable
 
 
+# an empty negative lookahead will always fail
+# the empty string matches anywhere, so negating it guarantees a match fail
+no_match = "(?!)"
+
 def regex_concat(*matches: str) -> str:
     return "".join(matches)
 
