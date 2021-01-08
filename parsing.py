@@ -1,10 +1,11 @@
 from io import FileIO
 from itertools import chain, product
-from typing import List, Tuple, Union
+from typing import Iterable, List, Tuple, Union
 from sound_class import sound_class
 from rule import rule
 import regex as re
 
+from regex_util import *
 
 class parse_error(Exception):
     pass
