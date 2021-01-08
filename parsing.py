@@ -112,18 +112,23 @@ def parse_rules(file: FileIO, start_line) -> List[rule]:
     rule_list: List[rule] = []
     line_counter = start_line
 
-    # continue looping, but now we have different rules
-    for line in file:
-        line_counter += 1
-        line = line.strip()
+    try:
+        for line in file:
+            line_counter += 1
+            line = line.strip()
 
-        if is_comment(line) or is_blank(line):
-            # skip comments and blank lines
-            continue
+            if is_comment(line) or is_blank(line):
+                # skip comments and blank lines
+                continue
 
-        else:
-            rule_list.append(rule(line))
-    
+            else:
+                # rule_list.append(rule(line))
+                rule_list.append(parse_rule(line))
+
+    except parse_error:
+        parse_error.args[0] = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + parse_error.args[0] # type: ignore
+        raise parse_error
+
     return rule_list
 
 
