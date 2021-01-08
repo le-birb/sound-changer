@@ -166,6 +166,29 @@ def parse_environments(environments: Iterable[str]) -> Tuple[str, str]:
     return pre_envs_str, post_envs_str
 
 
+arrows = ["=>", "->", ">", "→", "/"]
+
+# TODO: process rule strings before passing to any parsing functions
+def parse_rule(rule_str: str):
+    # first thing we do is split up the rule string into target, replacement, and environments
+    # target => replacement / env /! negenv
+    # target must come before a valid arrow, so grab that if it's there
+    for arrow in arrows:
+        if arrow in rule_str:
+            target, remainder = rule_str.split(arrow, maxsplit = 1)
+            break
+    else:
+        raise parse_error("Rule must have an arrow from the target to the replacement.")
+
+    remainder = remainder.split('/')
+    # the replacement is always the first thing, before any slashes (if present)
+    replacement = remainder[0]
+    # anything else will be an environment
+    environments = remainder[1:]
+
+    pre_env, post_env = parse_environments(environments)
+
+
 def parse_rules(file: FileIO, start_line) -> List[rule]:
     rule_list: List[rule] = []
     line_counter = start_line
