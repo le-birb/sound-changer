@@ -1,6 +1,6 @@
 from io import FileIO
 from itertools import chain, product
-from typing import Dict, List, Tuple, Union
+from typing import List, Tuple, Union
 from sound_class import sound_class
 from rule import rule
 import regex as re
@@ -59,8 +59,19 @@ def eval_class_expression(expression: str) -> Union[sound_class, sound_sequence]
         return sound_sequence(sound_list)
 
 
-def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
-    sound_classes: Dict[str, sound_class] = {}
+def parse_sound_class(class_str: str) -> sound_class:
+    if "=" not in class_str:
+        raise parse_error("Sound class definition must be of the form:\nname=expression")
+
+    name, expression = class_str.split('=', maxsplit = 1)
+
+    new_class = eval_class_expression(expression)
+    if not isinstance(new_class, sound_class):
+        new_class = sound_class(new_class)
+    new_class.name = name
+
+
+def parse_sound_classes(file: FileIO) -> int:
 
     line_counter = 0
 
@@ -82,24 +93,14 @@ def parse_sound_classes(file: FileIO) -> Tuple[Dict[str, sound_class], int]:
                 break
 
             else:
-                if "=" not in line:
-                    raise parse_error("Sound class definition must be of the form:\nname=expression")
-
-                name, expression = line.split('=', maxsplit = 1)
-
-                new_class = eval_class_expression(expression)
-                if not isinstance(new_class, sound_class):
-                    new_class = sound_class(new_class)
-                new_class.name = name
-
-                # TODO: add new_class to the global sound class list
-                sound_classes.update({name: new_class})
+                new_class = parse_sound_class(line)
+                sound_class.class_map.update({new_class.name: new_class})
 
     except parse_error:
         parse_error.args[0] = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + parse_error.args[0] # type: ignore
         raise parse_error
 
-    return sound_classes, line_counter
+    return line_counter
 
 
 ######################################################################################################################
@@ -130,8 +131,6 @@ def parse_rules(file: FileIO, start_line) -> List[rule]:
 # overall parsing
 
 def parse_rule_file(file):
-    classes, offset = parse_sound_classes(file)
-
-    sound_class.class_map = classes
+    offset = parse_sound_classes(file)
 
     return parse_rules(file, offset)
