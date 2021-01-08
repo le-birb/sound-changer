@@ -106,6 +106,64 @@ def parse_sound_classes(file: FileIO) -> int:
 ######################################################################################################################
 # rule stuff here
 
+def parse_environments(environments: Iterable[str]) -> Tuple[str, str]:
+    pre_envs_str = ""
+    post_envs_str = ""
+
+    # positive environments are checked in a set of | to match any of them, not just one
+    # the easiest way to do this is to just stick 'em in a list for now and '|'.join() them later
+    positive_pre_envs: List[str] = []
+
+    neg_counter = 0
+    pos_counter = 0
+
+    for env in environments:
+        # first, check if the environment is negative
+        neg = False
+        if env.startswith("!"):
+            neg = True
+            # get rid of the ! if so
+            env = env[1:]
+
+        env = env.strip()
+
+        try:
+            pre_env, post_env = env.split("_")
+        except ValueError:
+            raise parse_error("Environment \"{}\" does not contain an underscore".format(env))
+
+        if neg:
+            neg_counter += 1
+            name = "neg{}".format(neg_counter)
+            post_name = name + "_post"
+            pre_envs_str += regex_optional(lookbehind(regex_group(name = name, match = pre_env)))
+
+            # the post string negative check consists of 2 parts:
+            # see if the corresponding pre env matched, and if so try to match the post env
+            # if the post env matched, fail the match
+            fail_group = regex_optional(regex_group(name = post_name, match = post_env))
+            fail_check = regex_conditional(post_name, no_match)
+
+            post_envs_str += regex_conditional(name, regex_concat(fail_group, fail_check))
+
+        else:
+            pos_counter += 1
+            name = "pos{}".format(pos_counter)
+            positive_pre_envs.append( lookbehind(regex_group(name = name, match = pre_env)) )
+
+            # the post string positive check is much simpler
+            # we only need to check if the pre matched, then check the post
+            # if it matches the regex is done, otherwise it goes back to check others
+            # either way the engine handles that for us
+            post_envs_str += regex_conditional(name, post_env)
+
+    # now we add any positive pre envs to the pre_envs_str
+    pre_envs_str += regex_group(match = regex_or(*positive_pre_envs), silent = True)
+
+    # wrap the post env checking in a lookahead so it doesn't get returned from a match
+    post_envs_str = lookahead(post_envs_str)
+
+    return pre_envs_str, post_envs_str
 
 
 def parse_rules(file: FileIO, start_line) -> List[rule]:
