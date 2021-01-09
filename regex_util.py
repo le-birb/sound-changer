@@ -39,7 +39,11 @@ def regex_conditional(condition: str, branch_true: str, branch_false: str = "") 
         return branch_true
     
     else:
-        return "(?({}){}|{})".format(condition, branch_true, branch_false)
+        if not branch_false:
+            # (?(A)B|) is equivalent to (?(A)B), and the latter has less clutter when reading
+            return "(?({}){})".format(condition, branch_true)
+        else:
+            return "(?({}){}|{})".format(condition, branch_true, branch_false)
 
 
 def lookbehind(match: str, positive = True):
