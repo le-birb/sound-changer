@@ -141,9 +141,11 @@ def parse_environments(environments: Iterable[str]) -> Tuple[str, str]:
 
             # the post string negative check consists of 2 parts:
             # see if the corresponding pre env matched, and if so try to match the post env
-            # if the post env matched, fail the match
+            # if the post env matched, skip the match attempt at the current character:
+            # a negative environment matched, so no change should happen even if a positive
+            # environment happens to match as well
             fail_group = regex_optional(regex_group(name = post_name, match = post_env))
-            fail_check = regex_conditional(post_name, no_match)
+            fail_check = regex_conditional(post_name, skip_attempt)
 
             post_envs_str += regex_conditional(name, regex_concat(fail_group, fail_check))
 
