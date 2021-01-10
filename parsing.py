@@ -131,7 +131,7 @@ def parse_environments(environments: Iterable[str]) -> Tuple[str, str]:
         try:
             pre_env, post_env = env.split("_")
         except ValueError:
-            raise parse_error("Environment \"{}\" does not contain an underscore".format(env))
+            raise parse_error("Environment \"{}\" must contain exactly one underscore.".format(env))
 
         if neg:
             neg_counter += 1
