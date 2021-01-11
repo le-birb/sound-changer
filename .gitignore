@@ -1,5 +1,4 @@
 test/out
-proto-talossian
-.vscode/*
+.vscode
 __pycache__
-languages/*
+languages
