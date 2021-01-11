@@ -71,6 +71,8 @@ def parse_sound_class(class_str: str) -> sound_class:
         new_class = sound_class(new_class)
     new_class.name = name
 
+    return new_class
+
 
 def parse_sound_classes(file: FileIO) -> int:
 
