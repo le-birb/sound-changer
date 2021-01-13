@@ -32,11 +32,17 @@ if [ -f /etc/debian_version ]; then
     fi
 fi
 
-# create a venv and add the required libraries to that venv
-echo "Creating a virtualenv..."
-$python -m venv ./venv
 
-echo "Installing required packages..."
+if ! [ -f ./venv/bin/activate ]; then
+    # create a venv and add the required libraries to that venv
+    echo "No virtualenv found, creating one"
+    $python -m venv ./venv
+fi
+
+# activate the vitrualenv
+. ./venv/bin/activate
+
+echo "Installing required packages"
 $python -m pip install -r requirements.txt
 
 echo "Done!"
