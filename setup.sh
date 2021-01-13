@@ -25,8 +25,8 @@ if [ -f /etc/debian_version ]; then
             if ! [ $exit_status -eq 0 ]; then
                 echo "Looks like installation didn't work. Try installing python3-venv yourself and rerunning this script."
                 exit 2
-            # else
-                # echo "python3-venv sucessfully installed!"
+            else
+                echo "python3-venv sucessfully installed!"
             fi
         fi    
     fi
