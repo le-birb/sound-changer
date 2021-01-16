@@ -99,7 +99,7 @@ def parse_sound_classes(file: FileIO) -> int:
 
             else:
                 new_class = parse_sound_class(line)
-                sound_class.class_map.update({new_class.name: new_class})
+                sound_class.class_map[new_class.name] = new_class
 
     except parse_error as error:
         error.args[0] = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + error.args[0] # type: ignore
