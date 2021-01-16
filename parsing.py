@@ -111,7 +111,7 @@ def parse_sound_classes(file: FileIO) -> int:
 ######################################################################################################################
 # rule stuff here
 
-def parse_environments(environments: Iterable[str]) -> str | str:
+def parse_environments(environments: Iterable[str]) -> tuple[str, str]:
     pre_envs_str = ""
     post_envs_str = ""
 
