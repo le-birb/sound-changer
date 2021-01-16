@@ -1,5 +1,6 @@
 
-from typing import Dict, List, Tuple
+from __future__ import annotations
+
 import regex as re
 from warnings import warn
 from sound_class import sound_class
@@ -25,7 +26,7 @@ class rule:
 
     arrows = ["=>", "->", ">", "→", "/"]
 
-    def parse(string: str) -> Tuple[str]:
+    def parse(string: str) -> tuple[str]:
         
         for arrow in rule.arrows:
             # look for an arrow to define the target -> replacement separation
@@ -112,8 +113,8 @@ class rule:
             return re.sub(self.regex_match, self.replacement, word)
         
         else:
-            target_classes: List[sound_class] = []
-            replacement_classes: List[sound_class] = []
+            target_classes: list[sound_class] = []
+            replacement_classes: list[sound_class] = []
 
             for class_name in sound_class.class_map:
                 if class_name in self.target:

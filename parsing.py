@@ -1,6 +1,8 @@
+
+from __future__ import annotations
+
 from io import FileIO
 from itertools import chain, product
-from typing import Iterable, List, Tuple, Union
 from sound_class import sound_class
 from rule import rule
 import regex as re
@@ -38,7 +40,7 @@ class sound_sequence(list):
         return sound_sequence("".join(s) for s in sound_sets)
 
 
-def eval_class_expression(expression: str) -> Union[sound_class, sound_sequence]:
+def eval_class_expression(expression: str) -> sound_class | sound_sequence:
     if expression in sound_class.class_map:
         return sound_class.class_map[expression]
 
@@ -109,13 +111,13 @@ def parse_sound_classes(file: FileIO) -> int:
 ######################################################################################################################
 # rule stuff here
 
-def parse_environments(environments: Iterable[str]) -> Tuple[str, str]:
+def parse_environments(environments: Iterable[str]) -> str | str:
     pre_envs_str = ""
     post_envs_str = ""
 
     # positive environments are checked in a set of | to match any of them, not just one
     # the easiest way to do this is to just stick 'em in a list for now and '|'.join() them later
-    positive_pre_envs: List[str] = []
+    positive_pre_envs: list[str] = []
 
     neg_counter = 0
     pos_counter = 0
@@ -191,8 +193,8 @@ def parse_rule(rule_str: str):
     pre_env, post_env = parse_environments(environments)
 
 
-def parse_rules(file: FileIO, start_line) -> List[rule]:
-    rule_list: List[rule] = []
+def parse_rules(file: FileIO, start_line) -> list[rule]:
+    rule_list: list[rule] = []
     line_counter = start_line
 
     try:

@@ -1,14 +1,15 @@
 
-import argparse
-from rule import rule
+from __future__ import annotations
 
-from typing import List
+import argparse
+
+from rule import rule
 from time import time
 
 from parsing import parse_rule_file
 
 
-def apply_rules(rule_list: List[rule], word_list: List[str]) -> List[str]:
+def apply_rules(rule_list: list[rule], word_list: list[str]) -> list[str]:
 
     new_words = word_list
 

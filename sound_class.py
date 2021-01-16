@@ -1,15 +1,17 @@
 
+from __future__ import annotations
+
 from itertools import product, chain
-from typing import Dict, Iterable, List, Union
+from typing import Iterable
 import regex as re
 from ordered_set import OrderedSet as ordered_set
 
 
 class sound_class(ordered_set):
 
-    class_map: Dict[str, "sound_class"] = {}
+    class_map: dict[str, sound_class] = {}
 
-    def __init__(self, sound_list: Iterable[Union[str, "sound_class"]] = None, name: str = "") -> None:
+    def __init__(self, sound_list: Iterable[str | sound_class] = None, name: str = "") -> None:
         if sound_list:
             super().__init__(sound_list)
         else:
@@ -60,7 +62,7 @@ class sound_class(ordered_set):
         new_sounds = list("".join(s) for s in sound_sets)
         return sound_class(new_sounds)
 
-    def get_string_matches(self) -> List[str]:
+    def get_string_matches(self) -> list[str]:
         """DEPRECATED: just iterate though the sounds and escape them there if you need it
         
         Returns a list of regex-escaped strings that correspond to the sounds of the class"""
