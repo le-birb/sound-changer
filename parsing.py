@@ -132,6 +132,10 @@ def parse_environments(environments: Iterable[str]) -> tuple[str, str]:
 
         env = env.strip()
 
+        if env == "":
+            # skip empty environments for backwards compatability (for now)
+            continue
+
         try:
             pre_env, post_env = env.split("_")
         except ValueError:
