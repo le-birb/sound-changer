@@ -4,12 +4,14 @@ from __future__ import annotations
 from io import FileIO
 from itertools import chain, product
 from typing import Iterator
-from rule_tokenizer import token, tokenize_rule, token_type
-from sound_class import sound_class
-from rule import rule
+
 import regex as re
 
 from regex_util import *
+from rule import rule
+from rule_tokenizer import token, token_type, tokenize_rule
+from sound_class import sound_class
+
 
 class parse_error(Exception):
     pass

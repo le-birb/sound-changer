@@ -1,10 +1,12 @@
 
 from __future__ import annotations
 
-from itertools import product, chain
+from itertools import chain, product
 from typing import Iterable
+
 import regex as re
 from ordered_set import OrderedSet as ordered_set
+
 
 #TODO: remove ordered_set dependency by using regex's \L<> syntax to handle matching longer sounds for us
 # as an added benefit, users won't have to worry about it either

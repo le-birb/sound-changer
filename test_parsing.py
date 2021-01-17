@@ -4,6 +4,7 @@ import unittest
 import parsing
 from sound_class import sound_class
 
+
 class class_parse_test_case(unittest.TestCase):
 
     def setUp(self):
