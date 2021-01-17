@@ -102,8 +102,8 @@ def parse_sound_classes(file: FileIO) -> int:
                 sound_class.class_map[new_class.name] = new_class
 
     except parse_error as error:
-        error.args[0] = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + error.args[0] # type: ignore
-        raise error
+        augmented_error_string = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + error.args[0] # type: ignore
+        raise parse_error(augmented_error_string)
 
     return line_counter
 
@@ -211,8 +211,8 @@ def parse_rules(file: FileIO, start_line) -> list[rule]:
                 rule_list.append(parse_rule(line))
 
     except parse_error as error:
-        error.args[0] = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + error.args[0] # type: ignore
-        raise error
+        augmented_error_string = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + error.args[0] # type: ignore
+        raise parse_error(augmented_error_string)
 
     return rule_list
 
