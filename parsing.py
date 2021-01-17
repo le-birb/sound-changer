@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from io import FileIO
 from itertools import chain, product
+from typing import Iterator
+from rule_tokenizer import token, tokenize_rule, token_type
 from sound_class import sound_class
 from rule import rule
 import regex as re
@@ -109,6 +111,10 @@ def parse_sound_classes(file: FileIO) -> int:
         error.args = (augmented_error_string,)
         raise
 
+    # define a convenience class of all defined sounds if not user-defined
+    if "_ALL" not in sound_class.class_map:
+        sound_class.class_map["_ALL"] = sound_class(sound_class.union(sound_class.class_map.values()), name = "_ALL")
+
     return line_counter
 
 
@@ -178,27 +184,89 @@ def parse_environments(environments: Iterable[str]) -> tuple[str, str]:
     return pre_envs_str, post_envs_str
 
 
-arrows = ["=>", "->", ">", "→", "/"]
+def get_changes(token_iter: Iterator[token]):
+    targets = []
+    replacements = []
 
-# TODO: process rule strings before passing to any parsing functions
-def parse_rule(rule_str: str):
-    # first thing we do is split up the rule string into target, replacement, and environments
-    # target => replacement / env /! negenv
-    # target must come before a valid arrow, so grab that if it's there
-    for arrow in arrows:
-        if arrow in rule_str:
-            target, remainder = rule_str.split(arrow, maxsplit = 1)
+    curr_tokens = []
+
+    for token in token_iter:
+        # hitting either of these means we're in environments territory now
+        if token.type == token_type.pos_slash or token.type == token_type.neg_slash:
+            replacements.append(curr_tokens)
+
+            # add the slash back into the iterator and exit
+            token_iter = chain([token], token_iter)
             break
-    else:
-        raise parse_error("Rule must have an arrow from the target to the replacement.")
 
-    remainder = remainder.split('/')
-    # the replacement is always the first thing, before any slashes (if present)
-    replacement = remainder[0]
-    # anything else will be an environment
-    environments = remainder[1:]
+        elif token.type == token_type.arrow:
+            if not targets:
+                # this is the first set, so it is only a target
+                targets.append(curr_tokens)
+            else:
+                # this is a subsequent set of tokens, and so must be a replacement
+                if replacements:
+                    # if replacements is not empty, that means that this is part of a chain,
+                    # so the last replacement is also the target for this one
+                    targets.append(replacements[-1])
+                replacements.append(curr_tokens)
 
-    pre_env, post_env = parse_environments(environments)
+            curr_tokens = []
+
+        else:
+            curr_tokens.append(token)
+
+    return list(zip(targets, replacements))
+
+
+def get_envs(token_iter: Iterator[token]):
+    positive_envs = []
+    negative_envs = []
+
+    curr_env = []
+    curr_positive = True
+
+    for token in token_iter:
+        if token.type == token_type.pos_slash:
+            # add env to the list only if it's non-empty
+            if curr_env:
+                if curr_positive:
+                    positive_envs.append(curr_env)
+                else:
+                    negative_envs.append(curr_env)
+            curr_env = []
+            curr_positive = True
+
+        elif token.type == token_type.neg_slash:
+            if curr_env:
+                if curr_positive:
+                    positive_envs.append(curr_env)
+                else:
+                    negative_envs.append(curr_env)
+            curr_env = []
+            curr_positive = False
+
+        else:
+            curr_env.append(token)
+    
+    return positive_envs, negative_envs
+
+
+def compile_rule():
+    pass
+
+
+def parse_rule(rule_str: str):
+    tokens = tokenize_rule(rule_str, sound_class.class_map, sound_class.class_map["_ALL"])
+
+    token_iter = iter(tokens)
+
+    changes = get_changes(token_iter)
+
+    positive_envs, negative_envs = get_envs(token_iter)
+
+    for target, replacement in changes:
+        pass
 
 
 def parse_rules(file: FileIO, start_line) -> list[rule]:
