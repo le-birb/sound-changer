@@ -29,6 +29,8 @@ class token_type(Enum):
     matched_sound_class = auto() # e.g. V0, C0
     sound = auto()
 
+    eol = auto()
+
     def __repr__(self):
         return "token_type." + self.name
 
@@ -145,5 +147,7 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: I
         else:
             token_list.append(token(token_type.sound, next_char))
             current_pos += len(next_char)
+
+    token_list.append(token(token_type.eol, ""))
 
     return token_list
