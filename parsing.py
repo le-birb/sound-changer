@@ -40,6 +40,8 @@ class sound_sequence(list):
         if isinstance(other, sound_class):
             return NotImplemented
 
+        # join each sound in this set with each sound from the other set plus the empty string
+        # e.g. (a,b)*(1,2) -> a1,a2,a,b1,b2,b
         sound_sets = product(self, chain(other, ("",) ))
         return sound_sequence("".join(s) for s in sound_sets)
 

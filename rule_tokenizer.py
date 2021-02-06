@@ -136,7 +136,7 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: I
             continue
 
         # at this point, the next character is not anything the tokenizer has been specifically told to accept
-        # match the next unicode grapheme with \X, as 999 time in 1000 that'll be more useful than a character
+        # match the next unicode grapheme with \X, as 999 times in 1000 that'll be more useful than a character
         # if there's diacritics involved
         next_char = re.match(r"\X", rule_str, pos = current_pos)
         
