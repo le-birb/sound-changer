@@ -62,38 +62,3 @@ class sound_class(ordered_set):
         sound_sets = product(chain(other, ("",) ), self)
         new_sounds = list("".join(s) for s in sound_sets)
         return sound_class(new_sounds)
-
-    def get_string_matches(self) -> list[str]:
-        """DEPRECATED: just iterate though the sounds and escape them there if you need it
-        
-        Returns a list of regex-escaped strings that correspond to the sounds of the class"""
-
-        string_matches = []
-
-        for member in self:
-            if isinstance(member, str):
-                string_matches.append(re.escape(member))
-
-            elif isinstance(member, sound_class):
-                string_matches += member.get_string_matches()
-
-        return string_matches
-
-    def get_regex(self)-> str:
-        """DEPRECATED
-        
-        Returns a regular expression string that matches any member of the class"""
-
-        string_matches = self.get_string_matches()
-        
-        # any sound represented by more than one character prevents us from
-        # using a regex character class to match
-        if any([len(string) > 1 for string in string_matches]):
-            match_body = "|".join(string_matches)
-            regex = "(" + match_body + ")"
-        
-        else:
-            match_body = "".join(string_matches)
-            regex = "[" + match_body + "]"
-        
-        return regex
