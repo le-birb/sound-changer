@@ -4,19 +4,13 @@ from __future__ import annotations
 from itertools import chain, product
 from typing import Iterable
 
-import regex as re
 from ordered_set import OrderedSet as ordered_set
 
 
 class sound_class(ordered_set):
 
-    class_map: dict[str, sound_class] = {}
-
-    def __init__(self, sound_list: Iterable[str | sound_class] = None, name: str = "") -> None:
-        if sound_list:
-            super().__init__(sound_list)
-        else:
-            super().__init__()
+    def __init__(self, sound_list: Iterable[str] = None, name: str = "") -> None:
+        super().__init__(sound_list)
         self.name = name
 
     def __str__(self):
@@ -24,19 +18,6 @@ class sound_class(ordered_set):
     
     def __repr__(self):
         return self.name + "=" + ",".join(sound for sound in self)
-
-    def __iter__(self):
-        """Overrides the ordered set's default iter method so that all member sound classes are iterated through too.
-        The result is that `for sound in sound_class` will go through every sound sound_class would match."""
-        for member in super().__iter__():
-            if isinstance(member, sound_class):
-                yield from member
-            else:
-                yield member
-
-    # we need this so that sound classes can be added to themselves, since set members must be hashable
-    def __hash__(self):
-        return hash(repr(self))
 
     def __mul__(self, other):
         """Returns a sound class formed from combination of its sounds with the items in mult.

@@ -32,8 +32,18 @@ def remove_whitespace(string:str) -> str:
 #########################################################################################################################
 # class stuff here
 
+_class_map: dict[str, sound_class] = {}
 
 class sound_sequence(list):
+    def __init__(self, arg: Iterable[str]):
+        super().__init__()
+        # expand out and passed in sound classes, which are represented by just their name
+        for string in arg:
+            if string in _class_map:
+                self.extend(_class_map[string])
+            else:
+                self.append(string)
+
     "Encapsulates lists of sounds to define a mul function that makes evaluation much easier."
     def __mul__(self, other):
         # If the other argument is a sound class, defer to sound_class's __rmul__
@@ -45,8 +55,8 @@ class sound_sequence(list):
 
 
 def eval_class_expression(expression: str) -> sound_class | sound_sequence:
-    if expression in sound_class.class_map:
-        return sound_class.class_map[expression]
+    if expression in _class_map:
+        return _class_map[expression]
 
     # evaluate stuff in parentheses as a group: may remove this or change to have fuller parentheses support
     elif re.fullmatch(r"\([^)]*\)", expression):
@@ -103,7 +113,7 @@ def parse_sound_classes(file: FileIO) -> int:
 
             else:
                 new_class = parse_sound_class(line)
-                sound_class.class_map[new_class.name] = new_class
+                _class_map[new_class.name] = new_class
 
     except parse_error as error:
         # add info about the rule and line that a parse error happend on to the exception and reraise it
@@ -114,8 +124,8 @@ def parse_sound_classes(file: FileIO) -> int:
         raise
 
     # define a convenience class of all defined sounds if not user-defined
-    if "_ALL" not in sound_class.class_map:
-        sound_class.class_map["_ALL"] = sound_class(sound_class.union(sound_class.class_map.values()), name = "_ALL")
+    if "_ALL" not in _class_map:
+        _class_map["_ALL"] = sound_class(sound_class.union(_class_map.values()), name = "_ALL")
 
     return line_counter
 
@@ -259,7 +269,7 @@ def compile_rule():
 
 
 def parse_rule(rule_str: str):
-    tokens = tokenize_rule(rule_str, sound_class.class_map, sound_class.class_map["_ALL"])
+    tokens = tokenize_rule(rule_str, _class_map, _class_map["_ALL"])
 
     token_iter = iter(tokens)
 
