@@ -31,6 +31,14 @@ def regex_group(match: str, name: str = None, silent: bool = False) -> str:
         return "(" + match + ")"
 
 
+def regex_list_match(name: str) -> str:
+    return r"\L<" + name + ">"
+
+
+def regex_define(*groups: str) -> str:
+    return "(?(DEFINE)" + "".join(groups) + ")"
+
+
 def regex_conditional(condition: str, branch_true: str, branch_false: str = "") -> str:
     if branch_true == branch_false:
         # a choice between A and A is always A
