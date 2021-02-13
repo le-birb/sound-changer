@@ -256,21 +256,13 @@ def get_envs(token_iter: Iterator[token]):
     return positive_envs, negative_envs
 
 
-def compile_rule():
-    pass
-
-
-def parse_rule(rule_str: str):
+def parse_rule(rule_str: str) -> rule:
     tokens = tokenize_rule(rule_str, sound_class.class_map, sound_class.class_map["_ALL"])
 
-    token_iter = iter(tokens)
+    # get ast
 
-    changes = get_changes(token_iter)
+    # compile rule
 
-    positive_envs, negative_envs = get_envs(token_iter)
-
-    for target, replacement in changes:
-        pass
 
 
 def parse_rules(file: FileIO, start_line) -> list[rule]:
