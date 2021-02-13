@@ -22,8 +22,9 @@ class token_type(Enum):
     l_paren = auto()
     r_brace = auto()
     l_brace = auto()
-    r_bracket = auto()
-    l_bracket = auto()
+    # brackets will likely be used eventually but are currently not
+    # r_bracket = auto()
+    # l_bracket = auto()
 
     sound_class = auto()
     matched_sound_class = auto() # e.g. V0, C0
@@ -78,10 +79,11 @@ def tokenize_special_char(string: str) -> token:
         return token(token_type.l_brace, string)
     elif string == "}":
         return token(token_type.r_brace, string)
-    elif string == "[":
-        return token(token_type.l_bracket, string)
-    elif string == "]":
-        return token(token_type.r_bracket, string)
+    # brackets will likely be used eventually but are currently not
+    # elif string == "[":
+    #     return token(token_type.l_bracket, string)
+    # elif string == "]":
+    #     return token(token_type.r_bracket, string)
 
 
 def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: Iterable[str] = [], require_defined: bool = False) -> list[token]:
