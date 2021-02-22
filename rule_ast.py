@@ -77,13 +77,11 @@ class marker(enum.Enum):
     pos_env = enum.auto()
     neg_env = enum.auto()
 
-# sentinel object for the start of the parsing stack
-# should get popped off when collecting the first expression list 
-stack_start = object()
+    stack_start = enum.auto()
 
 # TODO: add checks for syntax errors
 def parse(tokens: Iterable[token]) -> rule_node:
-    parsing_stack: list[ast_node | marker] = [stack_start]
+    parsing_stack: list[ast_node | marker] = [marker.stack_start]
 
     finished_changes = False
 
@@ -252,7 +250,7 @@ def _parse_expression_list(stack: list[ast_node | marker]) -> expression_list_no
             # and exit the loop
             break
 
-        if peek is stack_start:
+        if peek is marker.stack_start:
             # we're also done
             # add the current expression to the list if there's anything in it
             if curr_expression:
