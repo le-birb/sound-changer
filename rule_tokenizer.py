@@ -104,18 +104,19 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: I
     
     while current_pos < len(rule_str):
         # first, check for a special char
-        special_char = re.match(r"\L<special_chars>", rule_str, pos = current_pos, special_chars = _special_chars)
-        if special_char:
-            match = special_char[0]
+        special_char_match = re.match(r"\L<special_chars>", rule_str, pos = current_pos, special_chars = _special_chars)
+        if special_char_match:
+            match = special_char_match[0]
             token_list.append(tokenize_special_char(match))
             current_pos += len(match)
             # skip to next part of the string after creating a token
             continue
 
         # then, check for a sound class
-        sound_class = re.match(r"\L<sound_classes>", rule_str, pos = current_pos, sound_classes = sound_classes)
-        if sound_class:
-            match = sound_class[0]
+        sound_class_match = re.match(r"\L<sound_classes>", rule_str, pos = current_pos, sound_classes = sound_classes)
+        # only 
+        if sound_class_match and sound_classes:
+            match = sound_class_match[0]
 
             # check if the found sound class is directly followed by a number
             number = re.match(r"\d+", rule_str, pos = current_pos + len(match))
@@ -131,9 +132,9 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: I
 
         # check for sounds defined in defined_sounds
         # primarily to get multi-char sounds matched properly
-        defined_sound = re.match(r"\L<defined_sounds>", rule_str, pos = current_pos, defined_sounds = defined_sounds)
-        if defined_sound:
-            match = defined_sound[0]
+        defined_sound_match = re.match(r"\L<defined_sounds>", rule_str, pos = current_pos, defined_sounds = defined_sounds)
+        if defined_sound_match and defined_sounds:
+            match = defined_sound_match[0]
             token_list.append(token(token_type.sound, match))
             current_pos += len(match)
             # skip to next part of the string after creating a token
@@ -142,13 +143,13 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: I
         # at this point, the next character is not anything the tokenizer has been specifically told to accept
         # match the next unicode grapheme with \X, as 999 times in 1000 that'll be more useful than a character
         # if there's diacritics involved
-        next_char = re.match(r"\X", rule_str, pos = current_pos)
+        next_char_match = re.match(r"\X", rule_str, pos = current_pos)
         
         if require_defined:
-            raise tokenization_error("unrecognized character '{}' found".format(next_char))
+            raise tokenization_error("unrecognized character '{}' found".format(next_char_match))
         else:
-            token_list.append(token(token_type.sound, next_char))
-            current_pos += len(next_char)
+            token_list.append(token(token_type.sound, next_char_match))
+            current_pos += len(next_char_match)
 
     token_list.append(token(token_type.eol, ""))
 
