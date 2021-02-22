@@ -37,12 +37,15 @@ class token_type(Enum):
 
 
 class token:
-    def __init__(self, type: token_type, string: str):
+    def __init__(self, type: token_type, string: str = None):
         self.type: token_type = type
         self.string: str = string
 
     def __repr__(self):
-        return f"token({self.type}, \"{self.string}\")"
+        if self.string:
+            return f"token({self.type}, \"{self.string}\")"
+        else:
+            return f"token({self.type})"
 
 
 class tokenization_error(Exception):
@@ -54,31 +57,31 @@ _special_chars = {"/", "/!", "_", "...", ",", " ", "#", "(", ")", "{", "}", "[",
 def tokenize_special_char(string: str) -> token:
     "Takes a special 'character' (may be longer that 1 character) and spits out a corresponding token."
     if string in _arrows:
-        return token(token_type.arrow, string)
+        return token(token_type.arrow)
     elif string == "/":
-        return token(token_type.pos_slash, string)
+        return token(token_type.pos_slash)
     elif string == "/!":
-        return token(token_type.neg_slash, string)
+        return token(token_type.neg_slash)
     elif string == "_":
-        return token(token_type.underscore, string)
+        return token(token_type.underscore)
     elif string == "...":
-        return token(token_type.ellipsis, string)
+        return token(token_type.ellipsis)
     elif string == ",":
-        return token(token_type.comma, string)
+        return token(token_type.comma)
     elif string == " ":
-        return token(token_type.space, string)
+        return token(token_type.space)
 
     elif string == "#":
-        return token(token_type.word_border, string)
+        return token(token_type.word_border)
 
     elif string == "(":
-        return token(token_type.l_paren, string)
+        return token(token_type.l_paren)
     elif string == ")":
-        return token(token_type.r_paren, string)
+        return token(token_type.r_paren)
     elif string == "{":
-        return token(token_type.l_brace, string)
+        return token(token_type.l_brace)
     elif string == "}":
-        return token(token_type.r_brace, string)
+        return token(token_type.r_brace)
     # brackets will likely be used eventually but are currently not
     # elif string == "[":
     #     return token(token_type.l_bracket, string)
@@ -151,6 +154,6 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: I
             token_list.append(token(token_type.sound, next_char_match[0]))
             current_pos += len(next_char_match)
 
-    token_list.append(token(token_type.eol, ""))
+    token_list.append(token(token_type.eol))
 
     return token_list
