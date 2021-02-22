@@ -144,12 +144,12 @@ def parse(tokens: Iterable[token]) -> rule_node:
 
         elif token.type is token_type.arrow:
             # we've hit the end of one section but not of all of the changes
-            parsing_stack.append(parse_expression_list(parsing_stack))
+            parsing_stack.append(_parse_expression_list(parsing_stack))
 
         elif token.type in (token_type.neg_slash, token_type.pos_slash, token_type.eol) and not finished_changes:
             # we've hit the end of the changes
             # get the last expression list
-            parsing_stack.append(parse_expression_list(parsing_stack))
+            parsing_stack.append(_parse_expression_list(parsing_stack))
             # then collect the lists into a changes_node
             changes: list[expression_list_node] = []
             while parsing_stack:
@@ -228,7 +228,7 @@ def parse(tokens: Iterable[token]) -> rule_node:
     return rule_node(*parsing_stack)
 
 
-def parse_expression_list(stack: list[ast_node | marker]) -> expression_list_node:
+def _parse_expression_list(stack: list[ast_node | marker]) -> expression_list_node:
     expressions: list[expression_node] = []
     curr_expression: list[element_node] = []
     while stack:

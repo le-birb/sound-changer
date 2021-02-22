@@ -54,7 +54,7 @@ class tokenization_error(Exception):
 _arrows = {"=>", "->", ">", "→"}
 _special_chars = {"/", "/!", "_", "...", ",", " ", "#", "(", ")", "{", "}", "[", "]"} | _arrows
 
-def tokenize_special_char(string: str) -> token:
+def _tokenize_special_char(string: str) -> token:
     "Takes a special 'character' (may be longer that 1 character) and spits out a corresponding token."
     if string in _arrows:
         return token(token_type.arrow)
@@ -110,7 +110,7 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: I
         special_char_match = re.match(r"\L<special_chars>", rule_str, pos = current_pos, special_chars = _special_chars)
         if special_char_match:
             match = special_char_match[0]
-            token_list.append(tokenize_special_char(match))
+            token_list.append(_tokenize_special_char(match))
             current_pos += len(match)
             # skip to next part of the string after creating a token
             continue

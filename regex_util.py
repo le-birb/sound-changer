@@ -2,10 +2,8 @@
 from typing import Iterable
 
 
-# (*FAIL) will always fail to match
-no_match = "(*FAIL)"
-
-skip_attempt = "(*PRUNE)" + no_match
+_no_match = "(*FAIL)"
+_skip_attempt = "(*PRUNE)" + _no_match
 
 def regex_concat(*matches: str) -> str:
     return "".join(matches)
