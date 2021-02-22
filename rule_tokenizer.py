@@ -42,7 +42,7 @@ class token:
         self.string: str = string
 
     def __repr__(self):
-        return repr(self.type) + ": " + self.string
+        return f"token({self.type}, \"{self.string}\")"
 
 
 class tokenization_error(Exception):
