@@ -150,12 +150,12 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str] = [], defined_soun
         # at this point, the next character is not anything the tokenizer has been specifically told to accept
         # match the next unicode grapheme with \X, as 999 times in 1000 that'll be more useful than a character
         # if there's diacritics involved
-        next_char_match = re.match(r"\X", rule_str, pos = current_pos)
+        next_char_match = re.match(r"\X", rule_str, pos = current_pos)[0]
         
         if require_defined:
             raise tokenization_error("unrecognized character '{}' found".format(next_char_match))
         else:
-            token_list.append(token(token_type.sound, next_char_match[0]))
+            token_list.append(token(token_type.sound, next_char_match))
             current_pos += len(next_char_match)
 
     token_list.append(token(token_type.eol))
