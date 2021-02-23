@@ -48,6 +48,12 @@ class token:
         else:
             return f"token({self.type})"
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, token):
+            return self.type == other.type and self.string == other.string
+        else:
+            return False
+
 
 class tokenization_error(Exception):
     pass
