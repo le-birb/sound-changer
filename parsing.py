@@ -3,13 +3,12 @@ from __future__ import annotations
 
 from io import FileIO
 from itertools import chain, product
-from typing import Iterator
 
 import regex as re
 
 from regex_util import *
 from rule import rule
-from rule_tokenizer import token, token_type, tokenize_rule
+from rule_tokenizer import tokenize_rule
 from sound_class import sound_class
 
 
