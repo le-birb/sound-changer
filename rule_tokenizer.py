@@ -29,6 +29,7 @@ class token_type(Enum):
     sound_class = auto()
     matched_sound_class = auto() # e.g. V0, C0
     sound = auto()
+    null_sound = auto()
 
     eol = auto()
 
@@ -52,7 +53,8 @@ class tokenization_error(Exception):
     pass
 
 _arrows = {"=>", "->", ">", "→"}
-_special_chars = {"/", "/!", "_", "...", ",", " ", "#", "(", ")", "{", "}", "[", "]"} | _arrows
+_null_sounds = {"0", "∅"}
+_special_chars = {"/", "/!", "_", "...", ",", " ", "#", "(", ")", "{", "}", "[", "]"} | _arrows | _null_sounds 
 
 def _tokenize_special_char(string: str) -> token:
     "Takes a special 'character' (may be longer that 1 character) and spits out a corresponding token."
@@ -73,6 +75,8 @@ def _tokenize_special_char(string: str) -> token:
 
     elif string == "#":
         return token(token_type.word_border)
+    elif string in _null_sounds:
+        return token(token_type.null_sound)
 
     elif string == "(":
         return token(token_type.l_paren)

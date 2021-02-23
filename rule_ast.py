@@ -96,6 +96,9 @@ def parse(tokens: Iterable[token]) -> rule_node:
             number = int( token.string[len(name):] )
             parsing_stack.append(sound_class_node(name, number))
 
+        elif token.type is token_type.null_sound:
+            parsing_stack.append(sound_node(""))
+
         elif token.type is token_type.l_brace:
             parsing_stack.append(marker.brace)
         elif token.type is token_type.l_paren:
