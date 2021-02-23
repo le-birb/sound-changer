@@ -93,7 +93,7 @@ def _tokenize_special_char(string: str) -> token:
     #     return token(token_type.r_bracket, string)
 
 
-def tokenize_rule(rule_str: str, sound_classes: Iterable[str], defined_sounds: Iterable[str] = [], require_defined: bool = False) -> list[token]:
+def tokenize_rule(rule_str: str, sound_classes: Iterable[str] = [], defined_sounds: Iterable[str] = [], require_defined: bool = False) -> list[token]:
     """Takes in a rule string and a set of sound classes and returns a list of tokens.
     
     defined_sounds is used to provide a list of all sounds that should be recognized as individual units,
