@@ -17,6 +17,7 @@ class token_type(Enum):
     space = auto()
 
     word_border = auto()
+    null_sound = auto()
 
     r_paren = auto()
     l_paren = auto()
@@ -29,7 +30,6 @@ class token_type(Enum):
     sound_class = auto()
     matched_sound_class = auto() # e.g. V0, C0
     sound = auto()
-    null_sound = auto()
 
     eol = auto()
 
