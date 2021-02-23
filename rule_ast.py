@@ -31,6 +31,10 @@ class optional_node(ast_node):
 class repetition_node(ast_node):
     expression: expression_node | element_node
 
+@dataclass
+class word_border_node(ast_node):
+    pass
+
 # convenience type alias
 element_node = Union[sound_node, sound_list_node, sound_class_node, optional_node, repetition_node]
 
@@ -98,6 +102,8 @@ def parse(tokens: Iterable[token]) -> rule_node:
 
         elif token.type is token_type.null_sound:
             parsing_stack.append(sound_node(""))
+        elif token.type is token_type.word_border:
+            parsing_stack.append(word_border_node())
 
         elif token.type is token_type.l_brace:
             parsing_stack.append(marker.brace)
