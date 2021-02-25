@@ -38,6 +38,7 @@ class sound_class(ordered_set):
     def __hash__(self):
         return hash(repr(self))
 
+    # TODO: move this functionality out of this class and into the sound class parser
     def __mul__(self, other):
         """Returns a sound class formed from combination of its sounds with the items in mult.
         Useful for making classes that include long sounds, for instance, as (class file definition):
