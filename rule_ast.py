@@ -1,8 +1,10 @@
 
 from __future__ import annotations
+
 import enum
-from typing import Iterable, Union
 from dataclasses import dataclass
+from typing import Any, Iterable, Union
+from warnings import warn
 
 from rule_tokenizer import token, token_type
 
@@ -73,7 +75,7 @@ class rule_node(ast_node):
 
 
 
-class marker(enum.Enum):
+class _marker(enum.Enum):
     """Enum for 'markers' added to parsing stack to indicate points relevant to parsing purposes but not
     ultimately represented in the ast."""
     space = enum.auto()
@@ -89,7 +91,7 @@ class marker(enum.Enum):
 
 # TODO: add checks for syntax errors
 def parse_to_ast(tokens: Iterable[token]) -> rule_node:
-    parsing_stack: list[ast_node | marker] = [marker.stack_start]
+    parsing_stack: list[ast_node | _marker] = [_marker.stack_start]
 
     finished_changes = False
 
@@ -109,16 +111,16 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
             parsing_stack.append(word_border_node())
 
         elif token.type is token_type.l_brace:
-            parsing_stack.append(marker.brace)
+            parsing_stack.append(_marker.brace)
         elif token.type is token_type.l_paren:
-            parsing_stack.append(marker.brace)
+            parsing_stack.append(_marker.brace)
 
         elif token.type is token_type.space and not finished_changes:
-            parsing_stack.append(marker.space)
+            parsing_stack.append(_marker.space)
         elif token.type is token_type.space:
             pass # once changes are done, spaces are no longer meaningful
         elif token.type is token_type.comma:
-            parsing_stack.append(marker.comma)
+            parsing_stack.append(_marker.comma)
 
         elif token.type is token_type.ellipsis:
             parsing_stack.append(repetition_node(parsing_stack.pop()))
@@ -129,13 +131,13 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
             expressions: list[expression_node] = []
             curr_expression: list[element_node] = []
             # take everything up to the open brace (and discard the brace, too)
-            while element := parsing_stack.pop() is not marker.brace:
-                if element is marker.comma:
+            while element := parsing_stack.pop() is not _marker.brace:
+                if element is _marker.comma:
                     # reverse since we pulled things off in reverse
                     curr_expression.reverse()
                     expressions.append(expression_node(curr_expression))
                     curr_expression = []
-                elif element is marker.space:
+                elif element is _marker.space:
                     # intentionally skip spaces within braces
                     pass
                 else:
@@ -147,7 +149,7 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
             # parse one expression back to the open parenthesis
             expression: list[element_node] = []
             # take everything up to the open parenthesis (and discard it the paren)
-            while element := parsing_stack.pop() is not marker.brace:
+            while element := parsing_stack.pop() is not _marker.brace:
                 expression.append(element)
             expression.reverse()
             parsing_stack.append(optional_node(expression_node(expression)))
@@ -176,13 +178,13 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
 
             # add a marker to let the parser know later which kind of environment is currently being parsed
             if token.type is token_type.pos_slash:
-                parsing_stack.append(marker.pos_env)
+                parsing_stack.append(_marker.pos_env)
             elif token.type is token_type.neg_slash:
-                parsing_stack.append(marker.neg_env)
+                parsing_stack.append(_marker.neg_env)
 
         elif token.type is token_type.underscore:
             expression = []
-            while parsing_stack[-1] not in (marker.pos_env, marker.neg_env):
+            while parsing_stack[-1] not in (_marker.pos_env, _marker.neg_env):
                 expression.append(parsing_stack.pop())
             expression.reverse()
             parsing_stack.append(expression_node(expression))
@@ -196,14 +198,14 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
             expression.reverse()
             post_expression = expression_node(expression)
             pre_expression = parsing_stack.pop()
-            is_positive = parsing_stack.pop() is marker.pos_env
+            is_positive = parsing_stack.pop() is _marker.pos_env
             parsing_stack.append(environment_node(pre_expression, post_expression, is_positive))
 
             # add a marker to let the parser know later which kind of environment it's parsing next
             if token.type is token_type.pos_slash:
-                parsing_stack.append(marker.pos_env)
+                parsing_stack.append(_marker.pos_env)
             elif token.type is token_type.neg_slash:
-                parsing_stack.append(marker.neg_env)
+                parsing_stack.append(_marker.neg_env)
 
         elif token.type is token_type.eol:
             # we've hit the end of all things, and also know that the latest things are environments
@@ -215,7 +217,7 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
             expression.reverse()
             post_expression = expression_node(expression)
             pre_expression = parsing_stack.pop()
-            is_positive = parsing_stack.pop() is marker.pos_env
+            is_positive = parsing_stack.pop() is _marker.pos_env
             parsing_stack.append(environment_node(pre_expression, post_expression, is_positive))
 
             # then collect all environment nodes into an environment list node
@@ -238,13 +240,13 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
     return rule_node(*parsing_stack)
 
 
-def _parse_expression_list(stack: list[ast_node | marker]) -> expression_list_node:
+def _parse_expression_list(stack: list[ast_node | _marker]) -> expression_list_node:
     expressions: list[expression_node] = []
     curr_expression: list[element_node] = []
     while stack:
         peek = stack[-1]
 
-        if peek is marker.space:
+        if peek is _marker.space:
             # the current expression, if it exists, is done, add it to the list
             if curr_expression:
                 curr_expression.reverse()
@@ -262,7 +264,7 @@ def _parse_expression_list(stack: list[ast_node | marker]) -> expression_list_no
             # and exit the loop
             break
 
-        if peek is marker.stack_start:
+        if peek is _marker.stack_start:
             # we're also done
             # add the current expression to the list if there's anything in it
             if curr_expression:
