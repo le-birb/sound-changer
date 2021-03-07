@@ -293,12 +293,10 @@ def _parse_expression_list(stack: list[ast_node | _marker]) -> expression_list_n
 ########################################################################################################################################################
 
 class ast_visitor:
-    @classmethod
-    def visit(cls, node: ast_node) -> Any:
+    def visit(self, node: ast_node) -> Any:
         func_name = f"visit_{node.__class__.__name__}"
-        visit_func = getattr(cls, func_name, cls._visit_default)
+        visit_func = getattr(self, func_name, self._visit_default)
         return visit_func(node)
 
-    @classmethod
-    def _visit_default(cls, node: ast_node):
-        warn(f"Visitor {cls.__name__}  has no visit method for {node.__class__.__name__} type nodes")
+    def _visit_default(self, node: ast_node):
+        warn(f"Visitor {self.__name__}  has no visit method for {node.__class__.__name__} type nodes")
