@@ -284,3 +284,19 @@ def _parse_expression_list(stack: list[ast_node | marker]) -> expression_list_no
 
     expressions.reverse()
     return expression_list_node(expressions)
+
+
+########################################################################################################################################################
+# ast visitors
+########################################################################################################################################################
+
+class ast_visitor:
+    @classmethod
+    def visit(cls, node: ast_node) -> Any:
+        func_name = f"visit_{node.__class__.__name__}"
+        visit_func: callable(ast_node) = getattr(cls, func_name, cls._visit_default)
+        return visit_func(node)
+
+    @classmethod
+    def _visit_default(cls, node: ast_node):
+        warn(f"Visitor {cls.__name__}  has no visit method for {node.__class__.__name__} type nodes")
