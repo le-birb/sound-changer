@@ -21,6 +21,15 @@ def regex_optional(match: str) -> str:
     else:
         return ""
 
+def regex_repeat(match: str) -> str:
+    if match:
+        if len(match) == 1 or _is_grouped(match):
+            return match + "+"
+        else:
+            return regex_group(match, silent = True) + "+"
+    else:
+        return ""
+
 
 def regex_group(match: str, name: str = None, silent: bool = False) -> str:
     if silent:
