@@ -110,7 +110,7 @@ def parse_sound_classes(file: FileIO) -> int:
         # add info about the rule and line that a parse error happend on to the exception and reraise it
         # don't use raise from as that creates a *new* exception, cluttering the output
         # only the caught exception actually matters, we just want to add context to it
-        augmented_error_string = "Line {}:\nClass \"{}\":\n".format(line_counter, line.strip()) + error.args[0] # type: ignore
+        augmented_error_string = "\n".join( (f"Line {line_counter}:", f"Class \"{line.strip()}\":", error.args[0]) )
         error.args = (augmented_error_string,)
         raise
 
@@ -154,7 +154,7 @@ def parse_rules(file: FileIO, start_line) -> list[rule]:
         # add info about the rule and line that a parse error happend on to the exception and reraise it
         # don't use raise from as that creates a *new* exception, cluttering the output
         # only the caught exception actually matters, we just want to add context to it
-        augmented_error_str = "Line {}:\nRule \"{}\":\n".format(line_counter, line.strip()) + error.args[0] # type: ignore
+        augmented_error_str = "\n".join( (f"Line {line_counter}:", f"Rule \"{line.strip()}\":", error.args[0]) )
         error.args = (augmented_error_str,)
         raise
 
