@@ -14,7 +14,10 @@ def regex_or(*matches: str) -> str:
 
 def regex_optional(match: str) -> str:
     if match:
-        return match + "?"
+        if len(match) == 1 or _is_grouped(match):
+            return match + "?"
+        else:
+            return regex_group(match, silent = True) + "?"
     else:
         return ""
 
@@ -81,3 +84,6 @@ def lookahead(match: str, positive = True):
 def lookahead_mult(matches: Iterable[str], positive = True):
     return lookahead(regex_or(matches), positive)
 
+
+def _is_grouped(string: str):
+    return string.startswith("(") and string.endswith(")")
