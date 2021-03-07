@@ -2,8 +2,8 @@
 from typing import Iterable
 
 
-_no_match = "(*FAIL)"
-_skip_attempt = "(*PRUNE)" + _no_match
+no_match = "(*FAIL)"
+skip_attempt = "(*PRUNE)" + no_match
 
 def regex_concat(*matches: str) -> str:
     return "".join(matches)
