@@ -17,7 +17,11 @@ class sound_node(ast_node):
 @dataclass
 class sound_class_node(ast_node):
     sound_class: str
-    match: int = None
+
+@dataclass
+class numbered_sound_class_node(ast_node):
+    sound_class: sound_class_node
+    number: str
 
 @dataclass
 class sound_list_node(ast_node):
@@ -36,7 +40,7 @@ class word_border_node(ast_node):
     pass
 
 # convenience type alias
-element_node = Union[sound_node, sound_list_node, sound_class_node, optional_node, repetition_node]
+element_node = Union[sound_node, sound_list_node, sound_class_node, numbered_sound_class_node, optional_node, repetition_node]
 
 @dataclass
 class expression_node(ast_node):
@@ -94,11 +98,10 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
             parsing_stack.append(sound_node(token.string))
         elif token.type is token_type.sound_class:
             parsing_stack.append(sound_class_node(token.string))
-        elif token.type is token_type.matched_sound_class:
-            # TODO: replace matched sounds class token with a number token?
-            name = token.string.strip("0123456789")
-            number = int( token.string[len(name):] )
-            parsing_stack.append(sound_class_node(name, number))
+        elif token.type is token_type.sound_class_number:
+            number = int(token.string)
+            class_node = parsing_stack.pop()
+            parsing_stack.append(numbered_sound_class_node(class_node, number))
 
         elif token.type is token_type.null_sound:
             parsing_stack.append(sound_node(""))

@@ -28,7 +28,7 @@ class token_type(Enum):
     # l_bracket = auto()
 
     sound_class = auto()
-    matched_sound_class = auto() # e.g. V0, C0
+    sound_class_number = auto()
     sound = auto()
 
     eol = auto()
@@ -127,20 +127,17 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str] = [], defined_soun
 
         # then, check for a sound class
         sound_class_match = re.match(r"\L<sound_classes>", rule_str, pos = current_pos, sound_classes = sound_classes)
-        # only 
         if sound_class_match and sound_classes:
             match = sound_class_match[0]
-
-            # check if the found sound class is directly followed by a number
-            number = re.match(r"\d+", rule_str, pos = current_pos + len(match))
-            if number:
-                match += number[0]
-                token_list.append(token(token_type.matched_sound_class, match))
-            else:
-                token_list.append(token(token_type.sound_class, match))
-            
+            token_list.append(token(token_type.sound_class, match))
             current_pos += len(match)
             # skip to next part of the string after creating a token
+            continue
+
+        # now check for a number coming directly after a sound class
+        if token_list[-1].type is token_type.sound_class and rule_str[current_pos] in '0123456789':
+            number = re.match(r"\d+", rule_str, pos = current_pos)[0]
+            token_list.append(token(token_type.sound_class_number, number))
             continue
 
         # check for sounds defined in defined_sounds
