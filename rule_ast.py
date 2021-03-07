@@ -296,7 +296,7 @@ class ast_visitor:
     @classmethod
     def visit(cls, node: ast_node) -> Any:
         func_name = f"visit_{node.__class__.__name__}"
-        visit_func: callable(ast_node) = getattr(cls, func_name, cls._visit_default)
+        visit_func = getattr(cls, func_name, cls._visit_default)
         return visit_func(node)
 
     @classmethod
