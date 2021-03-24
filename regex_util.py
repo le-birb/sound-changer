@@ -36,7 +36,7 @@ def regex_group(match: str, name: str = None, silent: bool = False) -> str:
         return "(?:" + match + ")"
 
     elif name:
-        return "(?<" + name + ">" + match + ")"
+        return "(?P<" + name + ">" + match + ")"
     else:
         return "(" + match + ")"
 
