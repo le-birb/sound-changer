@@ -18,7 +18,7 @@ class sound_node(ast_node):
 
 @dataclass
 class sound_class_node(ast_node):
-    sound_class: str
+    name: str
 
 @dataclass
 class numbered_sound_class_node(ast_node):
