@@ -41,6 +41,13 @@ def regex_group(match: str, name: str = None, silent: bool = False) -> str:
         return "(" + match + ")"
 
 
+def regex_group_ref(name: str, substitution: bool = False) -> str:
+    if substitution:
+        return r"\g<" + name + ">"
+    else:
+        return "(P=" + name + ")"
+
+
 def regex_list_match(name: str) -> str:
     return r"\L<" + name + ">"
 
