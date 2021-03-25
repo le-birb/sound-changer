@@ -135,7 +135,7 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str] = [], defined_soun
             continue
 
         # now check for a number coming directly after a sound class
-        if token_list[-1].type is token_type.sound_class and rule_str[current_pos] in '0123456789':
+        if token_list and token_list[-1].type is token_type.sound_class and rule_str[current_pos] in '0123456789':
             number = re.match(r"\d+", rule_str, pos = current_pos)[0]
             token_list.append(token(token_type.sound_class_number, number))
             continue
