@@ -299,4 +299,4 @@ class ast_visitor:
         return visit_func(node)
 
     def _visit_default(self, node: ast_node):
-        warn(f"Visitor {self.__name__}  has no visit method for {node.__class__.__name__} type nodes")
+        warn(f"Visitor {self.__class__.__name__}  has no visit method for {node.__class__.__name__} type nodes")
