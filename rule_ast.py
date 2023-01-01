@@ -63,14 +63,10 @@ class environment_list_node(ast_node):
     positive_environments: list[environment_node] = None
     negative_environments: list[environment_node] = None
 
-@dataclass
-class changes_node(ast_node):
-    changes: list[expression_list_node]
-
 
 @dataclass
 class rule_node(ast_node):
-    changes: changes_node
+    changes: list[expression_list_node]
     environments: environment_list_node = None
 
 
@@ -174,7 +170,7 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
                     pass
             finished_changes = True
             changes.reverse()
-            parsing_stack.append(changes_node(changes))
+            parsing_stack.append(changes)
 
             # add a marker to let the parser know later which kind of environment is currently being parsed
             if token.type is token_type.pos_slash:
@@ -236,7 +232,7 @@ def parse_to_ast(tokens: Iterable[token]) -> rule_node:
         # TODO: raise an appropriate error
         pass
 
-    # finally, the parsing stack should now look like [changes_node, environment_list_node]
+    # finally, the parsing stack should now look like [list[expression_list_node], environment_list_node]
     return rule_node(*parsing_stack)
 
 
@@ -299,4 +295,4 @@ class ast_visitor:
         return visit_func(node)
 
     def _visit_default(self, node: ast_node):
-        warn(f"Visitor {self.__class__.__name__}  has no visit method for {node.__class__.__name__} type nodes")
+        warn(f"Visitor {self.__class__.__name__} has no visit method for {node.__class__.__name__} type nodes")
