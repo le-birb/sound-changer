@@ -46,7 +46,7 @@ element_node = Union[sound_node, sound_list_node, sound_class_node, numbered_sou
 
 @dataclass
 class expression_node(ast_node):
-    expression: list[element_node]
+    elements: list[element_node]
 
 @dataclass
 class expression_list_node(ast_node):
