@@ -84,7 +84,7 @@ class _marker(enum.Enum):
     stack_start = enum.auto()
 
 # TODO: add checks for syntax errors
-def parse_to_ast(tokens: Iterable[token]) -> rule_node:
+def parse_tokens(tokens: Iterable[token]) -> rule_node:
     parsing_stack: list[ast_node | _marker] = [_marker.stack_start]
 
     finished_changes = False
