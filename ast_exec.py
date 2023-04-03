@@ -81,18 +81,17 @@ class replacement_builder(ast_visitor):
     def _visit_default(self, node: ast_node, data):
         return ""
 
-
-def interpret_rule(rule: rule_node, word: str):
-    for target, replacement in pairwise(rule.changes):
-        # for now, I'm only implementing a single replacement at a time
-        # e.g. a > e
-        # stuff like a, e > e, i will come later
-        target, replacement = target[0].expression, replacement[0].expression
-        t_idx: int = 0
-        matches: list[tuple[int]] = []
-        matcher = target_matcher()
-        for char, c_idx in enumerate(word):
-            match, pos, data = matcher.visit(target)
+# def interpret_rule(rule: rule_node, word: str):
+#     for target, replacement in pairwise(rule.changes):
+#         # for now, I'm only implementing a single replacement at a time
+#         # e.g. a > e
+#         # stuff like a, e > e, i will come later
+#         target, replacement = target.expressions[0], replacement.expressions[0]
+#         t_idx: int = 0
+#         matches: list[tuple[int]] = []
+#         matcher = target_matcher()
+#         for char, c_idx in enumerate(word):
+#             match, pos, data = matcher.visit(target)
 
 
 if __name__ == "__main__":
