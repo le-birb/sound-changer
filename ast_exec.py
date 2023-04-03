@@ -43,6 +43,15 @@ class target_matcher(ast_visitor):
         match.contents += node.sound
         return match
 
+    @dispatch(optional_node)
+    def visit(self, node: optional_node, word: str, pos: int):
+        match = self.visit(node.expression, word = word, pos = pos)
+        if match:
+            return match
+        else:
+            pass
+        return match_data(pos, pos, True)
+
     @dispatch(expression_node)
     def visit(self, node: expression_node, word: str, pos: int) -> match_data:
         match = match_data(pos, pos, True)
@@ -59,14 +68,6 @@ class target_matcher(ast_visitor):
                 break # we already know we don't match, no need to check further
 
         return match
-
-    @dispatch(optional_node)
-    def visit(self, node: optional_node, word: str, pos: int):
-        match = self.visit(node.expression, word = word, pos = pos)
-        if match:
-            return match
-        else:
-            return match_data(pos, pos, True)
     
     # skip anything else for now, returning an empty match for compatability with other code
     @dispatch(ast_node)
