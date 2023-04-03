@@ -49,10 +49,6 @@ class expression_node(ast_node):
 @dataclass
 class expression_list_node(ast_node):
     expressions: list[expression_node]
-    # basically just pass listy behavior up for convenience
-    # still want this to be different from a generic list[expression_node] since it means a very particular thing
-    __iter__ = expressions.__iter__
-    __getitem__ = expressions.__getitem__
 
 @dataclass
 class environment_node(ast_node):
