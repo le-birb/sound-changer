@@ -107,7 +107,7 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
         elif token.type is token_type.l_brace:
             parsing_stack.append(_marker.brace)
         elif token.type is token_type.l_paren:
-            parsing_stack.append(_marker.brace)
+            parsing_stack.append(_marker.paren)
 
         elif token.type is token_type.space and not finished_changes:
             parsing_stack.append(_marker.space)
