@@ -5,27 +5,6 @@ from iterutil import pairwise
 
 from multipledispatch import dispatch
 
-# going to start with just a simple plain text replacement
-
-def _match(element: element_node, word: str, position: int) -> tuple(bool, int):
-    is_match: bool
-    end_pos: int
-    match element:
-        case sound_node(sound):
-            # TODO: check if len(sound) == 1 always
-            end_pos = position + len(sound)
-            try:
-                is_match = word[position, end_pos + 1] == sound
-            except:
-                pass
-        case ast_node():
-            # temporary "do nothing" for other matching types
-            is_match = False
-            end_pos = position
-        case _:
-            pass
-    return is_match, end_pos
-
 # TODO: rewrite this and associated code to include more data in the match
 @dataclass
 class match_data():
