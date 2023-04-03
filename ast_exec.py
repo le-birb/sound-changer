@@ -30,6 +30,8 @@ def merge_matches(first: match_data, second: match_data,/) -> match_data:
     else:
         raise ValueError("Matches must be consecutive to be merged!")
 
+#TODO: think about having these not even be classes
+
 class target_matcher(ast_visitor):
     """
     visit(node, word, pos) attempts to match node in word at pos, returning corresponding match_data
