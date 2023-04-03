@@ -143,7 +143,7 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
             # parse one expression back to the open parenthesis
             expression: list[element_node] = []
             # take everything up to the open parenthesis (and discard it the paren)
-            while element := parsing_stack.pop() is not _marker.brace:
+            while (element := parsing_stack.pop()) is not _marker.paren:
                 expression.append(element)
             expression.reverse()
             parsing_stack.append(optional_node(expression_node(expression)))
