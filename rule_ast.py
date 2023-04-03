@@ -295,6 +295,6 @@ from multipledispatch import dispatch
 
 class ast_visitor:
     @dispatch(ast_node)
-    def visit(self, node: ast_node) -> Any:
+    def visit(self, node: ast_node, *_args, **_kwargs) -> Any:
         """"""
         warn(f"Visitor {self.__class__.__name__} has no visit method for {node.__class__.__name__} type nodes")
