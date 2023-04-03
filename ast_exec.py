@@ -10,31 +10,54 @@ from multipledispatch import dispatch
 class match_data():
     start: int
     end: int
+    is_match: bool
+
+    def __bool__(self):
+        return self.is_match
+
+def merge_matches(first: match_data, second: match_data,/) -> match_data:
+    if first.end == second.start:
+        return match_data(
+                start = first.start,
+                end = second.end,
+                is_match = first.is_match and second.is_match
+            )
+    else:
+        raise ValueError("Matches must be consecutive to be merged!")
 
 class target_matcher(ast_visitor):
+    """
+    visit(node, word, pos) attempts to match node in word at pos, returning corresponding match_data
+    """
     @dispatch(sound_node)
-    def visit(self, node: sound_node, word: str, pos: int):
+    def visit(self, node: sound_node, word: str, pos: int) -> match_data:
         end_pos = pos + len(node.sound)
-        return (word[pos, end_pos + 1] == node.sound, end_pos)
+        match = match_data(pos, end_pos, False)
+        match.is_match = is_match = word[pos: end_pos] == node.sound
+        return match
 
     @dispatch(expression_node)
-    def visit(self, node: expression_node, word: str, pos: int):
-        results: list[tuple[bool, int]] = []
+    def visit(self, node: expression_node, word: str, pos: int) -> match_data:
+        match = match_data(pos, pos, True)
+        # keeps track of where the child will be attempting to match
         child_pos = pos
         # seek through the word, attempting to match each element successively
         for element in node.elements:
-            result = self.visit(element, word, child_pos)
-            results.append(result)
-            child_pos = result[1]
+            result = self.visit(element, word = word, pos = child_pos)
+            if result:
+                match = merge_matches(match, result)
+                child_pos = match.end
+            else:
+                match.is_match = False
+                break # we already know we don't match, no need to check further
 
-        matches, ends = zip(*results)
-        is_overall_match = all(matches)
-        end = ends[-1]
-        return is_overall_match, end
-
-    def _visit_default(self, node: ast_node, word: str, pos: int):
-        # skip over anything non-sound for now
-        return (False, 0)
+        return match
+    
+    # skip anything else for now, returning an empty match for compatability with other code
+    @dispatch(ast_node)
+    def visit(self, node: ast_node, word: str, pos: int):
+        super().visit(node, word = word, pos = pos)
+        return match_data(pos, pos, False)
 
 
 class replacement_builder(ast_visitor):
@@ -65,3 +88,16 @@ def interpret_rule(rule: rule_node, word: str):
         for char, c_idx in enumerate(word):
             match, pos, data = matcher.visit(target)
 
+
+if __name__ == "__main__":
+    from rule_ast import parse_tokens
+    from rule_tokenizer import tokenize_rule
+    root = parse_tokens(tokenize_rule("abc -> 123"))
+    matcher = target_matcher()
+    
+    word = "abcdefabcg"
+    matches: list[match_data] = []
+    for idx, char in enumerate(word):
+        matches.append(matcher.visit(root.changes[0].expressions[0], word = word, pos = idx))
+
+    print(matches)
