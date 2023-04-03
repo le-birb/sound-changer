@@ -1,6 +1,6 @@
 
 from dataclasses import dataclass
-from rule_ast import ast_visitor, ast_node, rule_node, sound_node, expression_node, element_node
+from rule_ast import ast_visitor, ast_node, rule_node, sound_node, expression_node, element_node, optional_node
 from iterutil import pairwise
 
 from multipledispatch import dispatch
@@ -59,6 +59,14 @@ class target_matcher(ast_visitor):
                 break # we already know we don't match, no need to check further
 
         return match
+
+    @dispatch(optional_node)
+    def visit(self, node: optional_node, word: str, pos: int):
+        match = self.visit(node.expression, word = word, pos = pos)
+        if match:
+            return match
+        else:
+            return match_data(pos, pos, True)
     
     # skip anything else for now, returning an empty match for compatability with other code
     @dispatch(ast_node)
@@ -98,7 +106,7 @@ class replacement_builder(ast_visitor):
 if __name__ == "__main__":
     from rule_ast import parse_tokens
     from rule_tokenizer import tokenize_rule
-    root = parse_tokens(tokenize_rule("abc -> 123"))
+    root = parse_tokens(tokenize_rule("abc(d) -> 123"))
     matcher = target_matcher()
     
     replacer = replacement_builder()
