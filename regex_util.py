@@ -33,27 +33,27 @@ def regex_repeat(match: str) -> str:
 
 def regex_group(match: str, name: str = None, silent: bool = False) -> str:
     if silent:
-        return "(?:" + match + ")"
+        return f"(?:{match})"
 
     elif name:
-        return "(?P<" + name + ">" + match + ")"
+        return f"(?P<{name}>{match})"
     else:
-        return "(" + match + ")"
+        return f"({match})"
 
 
 def regex_group_ref(name: str, substitution: bool = False) -> str:
     if substitution:
-        return r"\g<" + name + ">"
+        return rf"\g<{name}>"
     else:
-        return "(P=" + name + ")"
+        return f"(P={name})"
 
 
 def regex_list_match(name: str) -> str:
-    return r"\L<" + name + ">"
+    return rf"\L<{name}>"
 
 
 def regex_define(*groups: str) -> str:
-    return "(?(DEFINE)" + "".join(groups) + ")"
+    return f"(?(DEFINE){''.join(groups)})"
 
 
 def regex_conditional(condition: str, branch_true: str, branch_false: str = "") -> str:
@@ -68,9 +68,9 @@ def regex_conditional(condition: str, branch_true: str, branch_false: str = "") 
     else:
         if not branch_false:
             # (?(A)B|) is equivalent to (?(A)B), and the latter has less clutter when reading
-            return "(?({}){})".format(condition, branch_true)
+            return f"(?({condition}){branch_true})"
         else:
-            return "(?({}){}|{})".format(condition, branch_true, branch_false)
+            return f"(?({condition}){branch_true}|{branch_false})"
 
 
 def lookbehind(match: str, positive = True):
@@ -79,9 +79,9 @@ def lookbehind(match: str, positive = True):
         return ""
 
     if positive:
-        return "(?<=" + match + ")"
+        return f"(?<={match})"
     else:
-        return "(?<!" + match + ")"
+        return f"(?<!{match})"
 
 def lookbehind_mult(matches: Iterable[str], positive = True):
     return lookbehind(regex_or(matches), positive)
@@ -93,9 +93,9 @@ def lookahead(match: str, positive = True):
         return ""
 
     if positive:
-        return "(?=" + match + ")"
+        return f"(?={match})"
     else:
-        return "(?!" + match + ")"
+        return f"(?!{match})"
 
 def lookahead_mult(matches: Iterable[str], positive = True):
     return lookahead(regex_or(matches), positive)
