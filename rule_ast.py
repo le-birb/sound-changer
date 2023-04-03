@@ -4,10 +4,8 @@ from __future__ import annotations
 import enum
 from dataclasses import dataclass
 from typing import Any, Iterable, Union
-from warnings import warn
 
 from rule_tokenizer import token, token_type
-
 
 class ast_node:
     "base class for abstract syntax tree nodes"
@@ -292,11 +290,11 @@ def _parse_expression_list(stack: list[ast_node | _marker]) -> expression_list_n
 # ast visitors
 ########################################################################################################################################################
 
-class ast_visitor:
-    def visit(self, node: ast_node) -> Any:
-        func_name = f"visit_{node.__class__.__name__}"
-        visit_func = getattr(self, func_name, self._visit_default)
-        return visit_func(node)
+from warnings import warn
+from multipledispatch import dispatch
 
-    def _visit_default(self, node: ast_node):
+class ast_visitor:
+    @dispatch(ast_node)
+    def visit(self, node: ast_node) -> Any:
+        """"""
         warn(f"Visitor {self.__class__.__name__} has no visit method for {node.__class__.__name__} type nodes")
