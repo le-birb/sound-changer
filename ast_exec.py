@@ -5,7 +5,6 @@ from iterutil import pairwise
 
 from multipledispatch import dispatch
 
-# TODO: rewrite this and associated code to include more data in the match
 @dataclass
 class match_data():
     start: int
@@ -69,19 +68,19 @@ class target_matcher(ast_visitor):
 
 
 class replacement_builder(ast_visitor):
-    def visit(self, node: ast_node, data) -> str:
-        func_name = f"visit_{node.__class__.__name__}"
-        visit_func = getattr(self, func_name, self._visit_default)
-        return visit_func(node, data)
+    @dispatch(ast_node)
+    def visit(self, node: ast_node, data: match_data) -> str:
+        super().visit(node, match = match_data)
+        return ""
 
-    def visit_sound_node(self, node: sound_node, _):
+    @dispatch(sound_node)
+    def visit(self, node: sound_node, data: match_data):
         return node.sound
 
-    def visit_expression_node(self, node: expression_node, data):
-        return "".join(self.visit(n) for n in node.elements)
+    @dispatch(expression_node)
+    def visit(self, node: expression_node, data: match_data):
+        return "".join(self.visit(n, data = data) for n in node.elements)
 
-    def _visit_default(self, node: ast_node, data):
-        return ""
 
 # def interpret_rule(rule: rule_node, word: str):
 #     for target, replacement in pairwise(rule.changes):
@@ -102,9 +101,26 @@ if __name__ == "__main__":
     root = parse_tokens(tokenize_rule("abc -> 123"))
     matcher = target_matcher()
     
+    replacer = replacement_builder()
+
     word = "abcdefabcg"
     matches: list[match_data] = []
     for idx, char in enumerate(word):
-        matches.append(matcher.visit(root.changes[0].expressions[0], word = word, pos = idx))
+        match = matcher.visit(root.changes[0].expressions[0], word = word, pos = idx)
+        matches.append(match)
+    
+    new_str_pieces:list[str] = []
+    # keeps track of where in the word we're trying to fill in
+    word_ptr = 0
+    for match in filter(None, matches):
+        new_str_pieces.append(word[word_ptr:match.start])
+        repl = replacer.visit(root.changes[1].expressions[0], data = match)
+        new_str_pieces.append(repl)
+        word_ptr = match.end
+    # make sure to include any trailing bits after any matches
+    new_str_pieces.append(word[word_ptr:])
+    
+    new_word = "".join(new_str_pieces)
+    print(new_word)
 
-    print(matches)
+    
