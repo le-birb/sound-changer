@@ -28,7 +28,7 @@ class tokenizer_test_case(unittest.TestCase):
         self.assertEqual(tokenize_rule("{"), [token(token_type.l_brace), token(token_type.eol)])
 
         self.assertEqual(tokenize_rule("C", ["C"]), [token(token_type.sound_class, "C"), token(token_type.eol)])
-        self.assertEqual(tokenize_rule("C0", ["C",]), [token(token_type.matched_sound_class, "C0"), token(token_type.eol)])
+        self.assertEqual(tokenize_rule("C1", ["C",]), [token(token_type.sound_class, "C"), token(token_type.sound_class_number, "1"), token(token_type.eol)])
         self.assertEqual(tokenize_rule("a"), [token(token_type.sound, "a"), token(token_type.eol)])
 
         self.assertEqual(tokenize_rule(""), [token(token_type.eol)])
