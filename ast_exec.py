@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from rule_ast import ast_visitor, ast_node, rule_node, sound_node, expression_node, element_node
 from iterutil import pairwise
 
+from multipledispatch import dispatch
+
 # going to start with just a simple plain text replacement
 
 def _match(element: element_node, word: str, position: int) -> tuple(bool, int):
@@ -31,16 +33,13 @@ class match_data():
     end: int
 
 class target_matcher(ast_visitor):
-    def visit(self, node: ast_node, word: str, pos: int) -> tuple[bool, int, dict]:
-        func_name = f"visit_{node.__class__.__name__}"
-        visit_func = getattr(self, func_name, self._visit_default)
-        return *visit_func(node, word, pos), {}
-
-    def visit_sound_node(self, node: sound_node, word: str, pos: int):
+    @dispatch(sound_node)
+    def visit(self, node: sound_node, word: str, pos: int):
         end_pos = pos + len(node.sound)
         return (word[pos, end_pos + 1] == node.sound, end_pos)
 
-    def visit_expression_node(self, node: expression_node, word: str, pos: int):
+    @dispatch(expression_node)
+    def visit(self, node: expression_node, word: str, pos: int):
         results: list[tuple[bool, int]] = []
         child_pos = pos
         # seek through the word, attempting to match each element successively
