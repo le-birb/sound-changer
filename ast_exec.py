@@ -1,7 +1,7 @@
 
 from dataclasses import dataclass
 from rule_ast import ast_visitor, ast_node, rule_node, sound_node, expression_node, element_node, optional_node
-from iterutil import pairwise
+from itertools import pairwise
 
 from multipledispatch import dispatch
 
