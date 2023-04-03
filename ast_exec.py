@@ -11,16 +11,21 @@ class match_data():
     start: int
     end: int
     is_match: bool
+    contents: str = ""
 
     def __bool__(self):
         return self.is_match
+    
+    def __str__(self):
+        return self.contents
 
 def merge_matches(first: match_data, second: match_data,/) -> match_data:
     if first.end == second.start:
         return match_data(
                 start = first.start,
                 end = second.end,
-                is_match = first.is_match and second.is_match
+                is_match = first.is_match and second.is_match,
+                contents = first.contents + second.contents
             )
     else:
         raise ValueError("Matches must be consecutive to be merged!")
@@ -34,6 +39,7 @@ class target_matcher(ast_visitor):
         end_pos = pos + len(node.sound)
         match = match_data(pos, end_pos, False)
         match.is_match = is_match = word[pos: end_pos] == node.sound
+        match.contents += node.sound
         return match
 
     @dispatch(expression_node)
