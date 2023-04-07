@@ -1,12 +1,36 @@
 
 
 from typing import Iterable
+from dataclasses import dataclass
 
-
-from ast_exec import match_data, merge_matches
 from rule_ast import ast_node, expression_node, optional_node, sound_node
 
 from multipledispatch import dispatch
+
+@dataclass
+class match_data():
+    start: int
+    end: int
+    is_match: bool
+    contents: str = ""
+
+    def __bool__(self):
+        return self.is_match
+    
+    def __str__(self):
+        return self.contents
+
+def merge_matches(first: match_data, second: match_data,/) -> match_data:
+    if first.end == second.start:
+        return match_data(
+                start = first.start,
+                end = second.end,
+                is_match = first.is_match and second.is_match,
+                contents = first.contents + second.contents
+            )
+    else:
+        raise ValueError("Matches must be consecutive to be merged!")
+
 
 @dispatch(sound_node)
 def visit(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
