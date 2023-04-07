@@ -2,6 +2,7 @@
 
 from typing import Iterable
 from dataclasses import dataclass
+from warnings import warn
 
 from rule_ast import ast_node, expression_node, optional_node, sound_list_node, sound_node, rule_node
 
@@ -45,11 +46,6 @@ def visit(node: sound_list_node, word: str, pos: int):
     for expr in node.expressions:
         yield from visit(expr, word = word, pos = pos)
 
-# skip anything else for now, returning an empty match for compatability with other code
-@dispatch(ast_node)
-def visit(node: ast_node, word: str, pos: int):
-    return match_data(pos, pos)
-
 @dispatch(expression_node)
 def visit(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
     # seek through the word, attempting to match each element successively
@@ -61,6 +57,12 @@ def visit(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
                 yield merge_matches(result, m)
         else:
             yield result
+
+# skip anything unimplemented for now, returning an empty match for compatability with other code
+@dispatch(ast_node)
+def visit(node: ast_node, word: str, pos: int):
+    warn(f"Matching currently unimplemented for {node.__class__.__name__} type nodes")
+    return match_data(pos, pos, False)
 
 
 def match_rule(rule: rule_node, word:str) -> list[match_data]:
