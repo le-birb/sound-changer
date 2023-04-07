@@ -39,7 +39,7 @@ class target_matcher(ast_visitor):
     def visit(self, node: sound_node, word: str, pos: int) -> match_data:
         end_pos = pos + len(node.sound)
         match = match_data(pos, end_pos, False)
-        match.is_match = is_match = word[pos: end_pos] == node.sound
+        match.is_match = word[pos: end_pos] == node.sound
         match.contents += node.sound
         return match
 
