@@ -3,7 +3,7 @@
 from typing import Iterable
 from dataclasses import dataclass
 
-from rule_ast import ast_node, expression_node, optional_node, sound_node
+from rule_ast import ast_node, expression_node, optional_node, sound_node, rule_node
 
 from multipledispatch import dispatch
 
@@ -67,16 +67,22 @@ def visit(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
             yield result
 
 
+def match_rule(rule: rule_node, word:str) -> list[match_data]:
+    matches: list[match_data] = []
+    for idx, _ in enumerate(word):
+        match = next(filter(None, visit(rule.changes[0].expressions[0], word = word, pos = idx)), None)
+        if match is not None:
+            matches.append(match)
+    return matches
+
+
 if __name__ == "__main__":
     from rule_ast import parse_tokens
     from rule_tokenizer import tokenize_rule
     root = parse_tokens(tokenize_rule("abc(d) -> 123"))
 
     word = "abcdefabcg"
-    matches: list[match_data] = []
-    for idx, char in enumerate(word):
-        if (match := next(visit(root.changes[0].expressions[0], word = word, pos = idx), None)) is not None:
-            matches.append(match)
+    matches = match_rule(root, word)
     
-    print(list(filter(None, matches)))
+    print(matches)
 
