@@ -11,11 +11,7 @@ from multipledispatch import dispatch
 class match_data():
     start: int
     end: int
-    is_match: bool
     contents: str = ""
-
-    def __bool__(self):
-        return self.is_match
     
     def __str__(self):
         return self.contents
@@ -25,7 +21,6 @@ def merge_matches(first: match_data, second: match_data,/) -> match_data:
         return match_data(
                 start = first.start,
                 end = second.end,
-                is_match = first.is_match and second.is_match,
                 contents = first.contents + second.contents
             )
     else:
@@ -35,33 +30,29 @@ def merge_matches(first: match_data, second: match_data,/) -> match_data:
 @dispatch(sound_node)
 def visit(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
     end_pos = pos + len(node.sound)
-    match = match_data(pos, end_pos, False)
-    match.is_match = word[pos: end_pos] == node.sound
-    match.contents += node.sound
-    yield match
+    if word[pos: end_pos] == node.sound:
+        match = match_data(pos, end_pos)
+        match.contents = node.sound
+        yield match
 
 @dispatch(optional_node)
 def visit(node: optional_node, word: str, pos: int):
-    for match in visit(node.expression, word = word, pos = pos):
-        if match:
-            yield match
-        else:
-            pass
-    yield match_data(pos, pos, True)
+    yield from visit(node.expression, word = word, pos = pos):
+    yield match_data(pos, pos)
 
 # skip anything else for now, returning an empty match for compatability with other code
 @dispatch(ast_node)
 def visit(node: ast_node, word: str, pos: int):
-    return match_data(pos, pos, False)
+    return match_data(pos, pos)
 
 @dispatch(expression_node)
 def visit(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
     # seek through the word, attempting to match each element successively
     element = node.elements[0]
     result: match_data
-    for result in filter(None, visit(element, word = word, pos = pos)):
+    for result in visit(element, word = word, pos = pos):
         if len(node.elements) > 1:
-            for m in filter(None, visit(expression_node(node.elements[1:]), word = word, pos = result.end)):
+            for m in visit(expression_node(node.elements[1:]), word = word, pos = result.end):
                 yield merge_matches(result, m)
         else:
             yield result
@@ -70,7 +61,7 @@ def visit(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
 def match_rule(rule: rule_node, word:str) -> list[match_data]:
     matches: list[match_data] = []
     for idx, _ in enumerate(word):
-        match = next(filter(None, visit(rule.changes[0].expressions[0], word = word, pos = idx)), None)
+        match = next(visit(rule.changes[0].expressions[0], word = word, pos = idx), None)
         if match is not None:
             matches.append(match)
     return matches
