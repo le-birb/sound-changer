@@ -136,6 +136,9 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
                     pass
                 else:
                     curr_expression.append(element)
+            # make sure to include the leftmost expression as well
+            curr_expression.reverse()
+            expressions.append(expression_node(curr_expression))
             expressions.reverse()
             parsing_stack.append(sound_list_node(expressions))
 
