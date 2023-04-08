@@ -37,7 +37,7 @@ def visit(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
 
 @dispatch(optional_node)
 def visit(node: optional_node, word: str, pos: int):
-    yield from visit(node.expression, word = word, pos = pos):
+    yield from visit(node.expression, word = word, pos = pos)
     yield match_data(pos, pos)
 
 # skip anything else for now, returning an empty match for compatability with other code
