@@ -125,7 +125,7 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
             expressions: list[expression_node] = []
             curr_expression: list[element_node] = []
             # take everything up to the open brace (and discard the brace, too)
-            while element := parsing_stack.pop() is not _marker.brace:
+            while (element := parsing_stack.pop()) is not _marker.brace:
                 if element is _marker.comma:
                     # reverse since we pulled things off in reverse
                     curr_expression.reverse()
