@@ -2,71 +2,10 @@
 from __future__ import annotations
 
 import enum
-from dataclasses import dataclass
-from typing import Any, Iterable, Union
+from typing import Any, Iterable
 
+from rule_ast_nodes import *
 from rule_tokenizer import token, token_type
-
-class ast_node:
-    "base class for abstract syntax tree nodes"
-
-@dataclass
-class sound_node(ast_node):
-    sound: str
-
-@dataclass
-class sound_class_node(ast_node):
-    name: str
-
-@dataclass
-class numbered_sound_class_node(ast_node):
-    sound_class: sound_class_node
-    number: str
-
-@dataclass
-class sound_list_node(ast_node):
-    expressions: list[expression_node]
-
-@dataclass
-class optional_node(ast_node):
-    expression: expression_node | element_node
-
-@dataclass
-class repetition_node(ast_node):
-    expression: expression_node | element_node
-
-@dataclass
-class word_border_node(ast_node):
-    pass
-
-# convenience type alias
-element_node = Union[sound_node, sound_list_node, sound_class_node, numbered_sound_class_node, optional_node, repetition_node]
-
-@dataclass
-class expression_node(ast_node):
-    elements: list[element_node]
-
-@dataclass
-class expression_list_node(ast_node):
-    expressions: list[expression_node]
-
-@dataclass
-class environment_node(ast_node):
-    pre_expression: expression_node
-    post_expression: expression_node
-    positive: bool = True
-
-@dataclass
-class environment_list_node(ast_node):
-    positive_environments: list[environment_node] = None
-    negative_environments: list[environment_node] = None
-
-
-@dataclass
-class rule_node(ast_node):
-    changes: list[expression_list_node]
-    environments: environment_list_node = None
-
 
 
 class _marker(enum.Enum):

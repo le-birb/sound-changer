@@ -4,7 +4,7 @@ from typing import Iterable
 from dataclasses import dataclass
 from warnings import warn
 
-from rule_ast import ast_node, expression_node, optional_node, sound_list_node, sound_node, rule_node
+from rule_ast_nodes import * 
 
 from multipledispatch import dispatch
 
