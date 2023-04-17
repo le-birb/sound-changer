@@ -8,6 +8,7 @@ from rule_ast_nodes import *
 
 from multipledispatch import dispatch
 
+#TODO: make better names for things
 @dataclass
 class match_data():
     start: int
@@ -29,7 +30,7 @@ def merge_matches(first: match_data, second: match_data,/) -> match_data:
 
 
 @dispatch(sound_node)
-def visit(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
+def _match(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
     end_pos = pos + len(node.sound)
     if word[pos: end_pos] == node.sound:
         match = match_data(pos, end_pos)
@@ -37,30 +38,30 @@ def visit(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
         yield match
 
 @dispatch(optional_node)
-def visit(node: optional_node, word: str, pos: int):
-    yield from visit(node.expression, word = word, pos = pos)
+def _match(node: optional_node, word: str, pos: int):
+    yield from _match(node.expression, word = word, pos = pos)
     yield match_data(pos, pos)
 
 @dispatch(sound_list_node)
-def visit(node: sound_list_node, word: str, pos: int):
+def _match(node: sound_list_node, word: str, pos: int):
     for expr in node.expressions:
-        yield from visit(expr, word = word, pos = pos)
+        yield from _match(expr, word = word, pos = pos)
 
 @dispatch(expression_node)
-def visit(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
+def _match(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
     # seek through the word, attempting to match each element successively
     element = node.elements[0]
     result: match_data
-    for result in visit(element, word = word, pos = pos):
+    for result in _match(element, word = word, pos = pos):
         if len(node.elements) > 1:
-            for m in visit(expression_node(node.elements[1:]), word = word, pos = result.end):
+            for m in _match(expression_node(node.elements[1:]), word = word, pos = result.end):
                 yield merge_matches(result, m)
         else:
             yield result
 
 # skip anything unimplemented for now, returning an empty match for compatability with other code
 @dispatch(ast_node)
-def visit(node: ast_node, word: str, pos: int):
+def _match(node: ast_node, word: str, pos: int):
     warn(f"Matching currently unimplemented for {node.__class__.__name__} type nodes")
     return match_data(pos, pos, False)
 
@@ -68,9 +69,9 @@ def visit(node: ast_node, word: str, pos: int):
 def match_rule(rule: rule_node, word:str) -> list[match_data]:
     matches: list[match_data] = []
     for idx, _ in enumerate(word):
-        match = next(visit(rule.changes[0].expressions[0], word = word, pos = idx), None)
-        if match is not None:
-            matches.append(match)
+        match_result = next(_match(rule.changes[0].expressions[0], word = word, pos = idx), None)
+        if match_result is not None:
+            matches.append(match_result)
     return matches
 
 
