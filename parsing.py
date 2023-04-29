@@ -127,9 +127,7 @@ def parse_sound_classes(file: FileIO) -> int:
 def parse_rule(rule_str: str) -> rule:
     tokens = tokenize_rule(rule_str, sound_class.class_map, sound_class.class_map["_ALL"])
 
-    # get ast
-
-    # compile rule
+    return parse_tokens(tokens)
 
 
 
