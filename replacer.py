@@ -21,7 +21,8 @@ def _replace(node: expression_node, data: match_data):
 
 
 
-def replace(word: str, matches: list[match_data], replacement: expression_node) -> str:
+def replace_matches(word: str, matches: list[match_data], rule: rule_node) -> str:
+    replacement = rule.changes[1].expressions[0]
     new_str_pieces:list[str] = []
     # keeps track of where in the word we're trying to fill in
     word_ptr = 0
