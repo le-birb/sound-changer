@@ -1,72 +1,11 @@
-h / / #_
 
-N / ŋ / _k
-N / m / _p
-N / n /_t
+# inital simple goal
+rules:
 
-[iea] / ə / [^']_
-[uo] / ʊ / [^']_
+a > e
 
-' //
+b > c
 
-V / / V.*_#
+c > d
 
-r / l / V_
-r / l / F_
-r / l / #_
-
-N // _#
-
-% eliminate word-initial vowels and the schwa in first and final syllables in polysyllabic words
-ə / / #C_.*V
-ə / / V.*_C?#
-V / / #_.*V
-
-% get rid of some awkward clusters through various strategies
-ld / dl / #_
-tsi / its / C_
-də / əd / C_
-bə / əb / C_
-də / əd / C_
-þ / ð / #_ð
-ba / ab / C_
-bi / ib / C_
-mp / m / C_
-lm / ml / #_
-
-% assimilation of plosive voicing
-t / d / _[dð]
-d / t / _[tþ]
-
-ll / jl /
-
-lh / ll /
-Fl / ll /
-Zl / jl /
-
-h / /
-
-N / M / #_C
-əN / M / _C
-
-l / l̩ / #_[^aeəiouʊl]
-l / l̩ / [^aeəiouʊl]_#
-
-% simply romanization conventions
-thl / tl /
-e / é /
-ə / e /
-þþ / tth /
-ðð / ddh /
-ǵǵ / ggh /
-śś / ssh /
-źź / zzh /
-þ / th /
-ð / dh /
-tś / ch /
-ś / sh /
-ź / zh /
-ǵ / gh /
-ŋ / n /
-u / ú /
-ʊ / u /
+hh > h

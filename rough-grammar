@@ -1,0 +1,10 @@
+rule := changes, environments
+changes := expression_list, arrow, expression_list, (arrow, expression_list)*
+arrow := → | -> | => | >
+environments := (positive_environment | negative_environment)*
+positive_environment := /, environment
+negative_environment := /!, environment
+environment := expression?, _, expression?
+expression_list := expression, (' ', expression)*
+expression := (sound | sound_class | sound_list)*
+sound_list := '{', sound | sound_class, (',', sound |sound_class)* }
