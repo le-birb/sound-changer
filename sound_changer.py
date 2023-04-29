@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import argparse
 from time import time
+from matcher import match_rule
 
 from parsing import parse_rule_file
+from replacer import replace_matches
 from rule import rule
 
 
@@ -12,13 +14,14 @@ def apply_rules(rule_list: list[rule], word_list: list[str]) -> list[str]:
 
     new_words = word_list
 
+    # iterate in this order, applying each rule to every word before moving on,
+    # to keep open possibilities for pausing or halting execution at certain "times"
+    # within a rule list
     for rule in rule_list:
-        try:
-            new_words = [rule.apply(word) for word in new_words]
-        except:
-            # print the current rule to help in debugging
-            print(rule)
-            raise
+        for idx, word in enumerate(word_list):
+            matches = match_rule(rule, word)
+            if matches:
+                word_list[idx] = replace_matches(word, matches, rule)
 
     return new_words
 
