@@ -8,6 +8,7 @@ import regex as re
 
 from regex_util import *
 from rule import rule
+from rule_ast import parse_tokens
 from rule_tokenizer import tokenize_rule
 from sound_class import sound_class
 
