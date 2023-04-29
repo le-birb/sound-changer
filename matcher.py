@@ -66,7 +66,7 @@ def _match(node: ast_node, word: str, pos: int):
     return match_data(pos, pos, False)
 
 
-def match_rule(rule: rule_node, word:str) -> list[match_data]:
+def match_rule(rule: rule_node, word: str) -> list[match_data]:
     matches: list[match_data] = []
     for idx, _ in enumerate(word):
         match_result = next(_match(rule.changes[0].expressions[0], word = word, pos = idx), None)
