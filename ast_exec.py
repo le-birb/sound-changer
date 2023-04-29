@@ -1,6 +1,6 @@
 
 from matcher import match_rule
-from replacer import replace
+from replacer import replace_matches
 
 
 if __name__ == "__main__":
@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     word = "abcdefabcg"
     matches = match_rule(root, word)
-    new_word = replace(word, matches, root)
+    new_word = replace_matches(word, matches, root)
     print(new_word)
 
     
