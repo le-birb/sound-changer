@@ -12,8 +12,6 @@ from rule import rule
 
 def apply_rules(rule_list: list[rule], word_list: list[str]) -> list[str]:
 
-    new_words = word_list
-
     # iterate in this order, applying each rule to every word before moving on,
     # to keep open possibilities for pausing or halting execution at certain "times"
     # within a rule list
@@ -23,7 +21,7 @@ def apply_rules(rule_list: list[rule], word_list: list[str]) -> list[str]:
             if matches:
                 word_list[idx] = replace_matches(word, matches, rule)
 
-    return new_words
+    return word_list
 
 
 if __name__ == '__main__':
