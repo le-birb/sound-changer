@@ -18,6 +18,11 @@ class match_data():
     def __str__(self):
         return self.contents
 
+    def __bool__(self):
+        # any zero-length data should be falsey,
+        # as it is a container-ish type
+        return self.start != self.end
+
 def merge_matches(first: match_data, second: match_data,/) -> match_data:
     if first.end == second.start:
         return match_data(
