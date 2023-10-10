@@ -73,10 +73,14 @@ def _match(node: ast_node, word: str, pos: int):
 
 def match_rule(rule: rule_node, word: str) -> list[match_data]:
     matches: list[match_data] = []
-    for idx, _ in enumerate(word):
-        match_result = next(_match(rule.changes[0].expressions[0], word = word, pos = idx), None)
-        if match_result is not None:
+    idx = 0
+    while idx < len(word):
+        match_result: match_data = next(_match(rule.changes[0].expressions[0], word = word, pos = idx), None)
+        if match_result:
             matches.append(match_result)
+            idx = match_result.end
+        else:
+            idx += 1
     return matches
 
 
