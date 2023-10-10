@@ -45,7 +45,7 @@ def _match(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
 @dispatch(optional_node)
 def _match(node: optional_node, word: str, pos: int):
     yield from _match(node.expression, word = word, pos = pos)
-    yield match_data(pos, pos)
+    yield match_data(pos, pos) # 0-length match can be merged with other matches in a larger expression
 
 @dispatch(sound_list_node)
 def _match(node: sound_list_node, word: str, pos: int):
@@ -75,6 +75,8 @@ def match_rule(rule: rule_node, word: str) -> list[match_data]:
     matches: list[match_data] = []
     idx = 0
     while idx < len(word):
+        # the _match implementation will generate every possible match for the rule at a given position;
+        # we only take the first (if any)
         match_result: match_data = next(_match(rule.changes[0].expressions[0], word = word, pos = idx), None)
         if match_result:
             matches.append(match_result)
