@@ -24,14 +24,13 @@ def _replace(node: expression_node, data: match_data):
 
 
 
-def replace_matches(word: str, matches: list[match_data], rule: rule_node) -> str:
-    replacement = rule.changes[1].expressions[0]
+def replace_matches(word: str, matches: list[match_data], rule: change_node) -> str:
     new_str_pieces:list[str] = []
     # keeps track of where in the word we're trying to fill in
     word_ptr = 0
     for m in filter(None, matches):
         new_str_pieces.append(word[word_ptr: m.start])
-        repl = _replace(replacement, data = m)
+        repl = _replace(rule.replacement[0], data = m)
         new_str_pieces.append(repl)
         word_ptr = m.end
     # make sure to include any trailing bits after any matches

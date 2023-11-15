@@ -16,10 +16,11 @@ def apply_rules(rule_list: list[rule_node], word_list: list[str]) -> list[str]:
     # to keep open possibilities for pausing or halting execution at certain "times"
     # within a rule list
     for rule in rule_list:
-        for idx, word in enumerate(word_list):
-            matches = match_rule(rule, word)
-            if matches:
-                word_list[idx] = replace_matches(word, matches, rule)
+        for change in rule.changes:
+            for idx, word in enumerate(word_list):
+                matches = match_rule(change, word)
+                if matches:
+                    word_list[idx] = replace_matches(word, matches, change)
 
     return word_list
 

@@ -98,16 +98,22 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
             # we've hit the end of the changes
             # get the last expression list
             parsing_stack.append(_parse_expression_list(parsing_stack))
-            # then collect the lists into a changes_node
-            changes: list[expression_list_node] = []
+            # then collect the lists into change_nodes
+            changes: list[change_node] = []
             while parsing_stack:
+                curr_repl = parsing_stack.pop()
                 peek = parsing_stack[-1]
                 if isinstance(peek, expression_list_node):
-                    changes.append(parsing_stack.pop())
+                    changes.append(change_node(target = peek, replacement = curr_repl))
+                elif peek is _marker.stack_start:
+                    # get rid of the start marker; it was only used to make peeking
+                    # here and in _parse_expression_list easier
+                    parsing_stack.pop()
+                    break
                 else:
-                    # something has gone wrong
-                    # TODO: raise an appropriate error
-                    pass
+                    raise RuntimeError(f"Parsing stack in invalid state! Raw {type(peek)} left on stack during change collection.")
+            else:
+                raise RuntimeError("Parsing stack in invalid state! Start marker was popped before changes finished parsing.")
             finished_changes = True
             changes.reverse()
             parsing_stack.append(changes)
@@ -157,20 +163,21 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
             parsing_stack.append(environment_node(pre_expression, post_expression, is_positive))
 
             # then collect all environment nodes into an environment list node
-            pos_envs = []
-            neg_envs = []
+            pos_envs: list[environment_node] = []
+            neg_envs: list[environment_node] = []
             while isinstance(parsing_stack[-1], environment_node):
                 env_node: environment_node = parsing_stack.pop()
                 if env_node.positive:
                     pos_envs.append(env_node)
                 else:
                     neg_envs.append(env_node)
-            parsing_stack.append(environment_list_node(pos_envs, neg_envs))
+            parsing_stack.append(pos_envs)
+            parsing_stack.append(neg_envs)
 
         else:
             raise NotImplementedError(f"Unrecognized token {token} encountered while parsing.")
 
-    # finally, the parsing stack should now look like [list[expression_list_node], environment_list_node]
+    # finally, the parsing stack should now look like [list[changes], list[environment_node], list[environment_node]]
     return rule_node(*parsing_stack)
 
 
@@ -204,8 +211,6 @@ def _parse_expression_list(stack: list[ast_node | _marker]) -> expression_list_n
             if curr_expression:
                 curr_expression.reverse()
                 expressions.append(expression_node(curr_expression))
-            # pop the start marker off - it's not needed anymore
-            stack.pop()
             # and exit the loop
             break
 

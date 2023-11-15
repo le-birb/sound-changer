@@ -44,9 +44,12 @@ element_node = sound_node | sound_list_node | sound_class_node | numbered_sound_
 class expression_node(ast_node):
     elements: list[element_node]
 
-@_dataclass
-class expression_list_node(ast_node):
-    expressions: list[expression_node]
+# this one inherits from list as it's a more structural component than a meaningful one
+# it's still its own thing to distinguish it from other lists of things that may
+# arise during parsing
+class expression_list_node(ast_node, list):
+    # expressions: list[expression_node]
+    pass
 
 @_dataclass
 class environment_node(ast_node):
@@ -55,12 +58,14 @@ class environment_node(ast_node):
     positive: bool = True
 
 @_dataclass
-class environment_list_node(ast_node):
-    positive_environments: list[environment_node] = None
-    negative_environments: list[environment_node] = None
+class change_node(ast_node):
+    target: expression_list_node
+    replacement: expression_list_node
 
 
 @_dataclass
 class rule_node(ast_node):
-    changes: list[expression_list_node]
-    environments: environment_list_node = None
+    changes: list[change_node]
+    positive_environments: list[environment_node] = None
+    negative_environments: list[environment_node] = None
+

@@ -71,16 +71,16 @@ def _match(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
 @dispatch(ast_node)
 def _match(node: ast_node, word: str, pos: int):
     warn(f"Matching currently unimplemented for {node.__class__.__name__} type nodes")
-    return match_data(pos, pos, False)
+    yield match_data(pos, pos)
 
 
-def match_rule(rule: rule_node, word: str) -> list[match_data]:
+def match_rule(rule: change_node, word: str) -> list[match_data]:
     matches: list[match_data] = []
     idx = 0
     while idx < len(word):
         # the _match implementation will generate every possible match for the rule at a given position;
         # we only take the first (if any)
-        match_result: match_data = next(_match(rule.changes[0].expressions[0], word = word, pos = idx), None)
+        match_result: match_data = next(_match(rule.target[0], word = word, pos = idx), None)
         if match_result:
             matches.append(match_result)
             idx = match_result.end
