@@ -41,6 +41,8 @@ class token_type(Enum):
 class token:
     type: token_type
     string: str = None
+    line: int = None
+    column: int = None
 
     def __eq__(self, other) -> bool:
         if isinstance(other, token):
