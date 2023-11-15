@@ -167,10 +167,8 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
                     neg_envs.append(env_node)
             parsing_stack.append(environment_list_node(pos_envs, neg_envs))
 
-    else:
-        # the iterator ran out somehow
-        # TODO: raise an appropriate error
-        pass
+        else:
+            raise NotImplementedError(f"Unrecognized token {token} encountered while parsing.")
 
     # finally, the parsing stack should now look like [list[expression_list_node], environment_list_node]
     return rule_node(*parsing_stack)
