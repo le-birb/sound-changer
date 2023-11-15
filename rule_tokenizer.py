@@ -37,16 +37,10 @@ class token_type(Enum):
         return "token_type." + self.name
 
 
+@dataclass(frozen = True)
 class token:
-    def __init__(self, type: token_type, string: str = None):
-        self.type: token_type = type
-        self.string: str = string
-
-    def __repr__(self):
-        if self.string:
-            return f"token({self.type}, \"{self.string}\")"
-        else:
-            return f"token({self.type})"
+    type: token_type
+    string: str = None
 
     def __eq__(self, other) -> bool:
         if isinstance(other, token):
