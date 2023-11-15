@@ -68,9 +68,9 @@ def _eval_class_expression(expression: str) -> sound_class | sound_sequence:
         return sound_sequence(sound_list)
 
 
-def _parse_sound_class(class_str: str) -> sound_class:
+def _parse_sound_class(class_str: str, linenum: int) -> sound_class:
     if "=" not in class_str:
-        raise parse_error("Sound class definition must be of the form:\nname=expression")
+        raise parse_error(f"Sound class definition on line {linenum} is not of the form:\nname=expression")
 
     name, expression = class_str.split('=', maxsplit = 1)
 
@@ -83,13 +83,9 @@ def _parse_sound_class(class_str: str) -> sound_class:
 
 
 def parse_sound_classes(file: FileIO) -> int:
-
-    line_counter = 0
-
     try:
         # start with checking for sound class definitions
-        for line in file:
-            line_counter += 1
+        for linenum, line in enumerate(file):
             line = _remove_whitespace(line)
 
             if _is_comment(line) or _is_blank(line):
@@ -104,14 +100,14 @@ def parse_sound_classes(file: FileIO) -> int:
                 break
 
             else:
-                new_class = _parse_sound_class(line)
+                new_class = _parse_sound_class(line, linenum)
                 sound_class.class_map[new_class.name] = new_class
 
     except parse_error as error:
         # add info about the rule and line that a parse error happend on to the exception and reraise it
         # don't use raise from as that creates a *new* exception, cluttering the output
         # only the caught exception actually matters, we just want to add context to it
-        augmented_error_string = "\n".join( (f"Line {line_counter}:", f"Class \"{line.strip()}\":", error.args[0]) )
+        augmented_error_string = "\n".join( (f"Line {linenum}:", f"Class \"{line.strip()}\":", error.args[0]) )
         error.args = (augmented_error_string,)
         raise
 
@@ -119,26 +115,24 @@ def parse_sound_classes(file: FileIO) -> int:
     if "_ALL" not in sound_class.class_map:
         sound_class.class_map["_ALL"] = sound_class(sound_class.union(sound_class.class_map.values()), name = "_ALL")
 
-    return line_counter
+    return linenum
 
 
 ######################################################################################################################
 # rule stuff here
 
-def parse_rule(rule_str: str) -> rule:
+def parse_rule(rule_str: str, linenum: int) -> rule:
     tokens = tokenize_rule(rule_str, sound_class.class_map, sound_class.class_map["_ALL"])
 
     return parse_tokens(tokens)
 
 
 
-def parse_rules(file: FileIO, start_line) -> list[rule]:
+def parse_rules(file: FileIO, start_line: int) -> list[rule]:
     rule_list: list[rule] = []
-    line_counter = start_line
 
     try:
-        for line in file:
-            line_counter += 1
+        for linenum, line in enumerate(file, start = start_line):
             line = line.strip()
 
             if _is_comment(line) or _is_blank(line):
@@ -146,14 +140,13 @@ def parse_rules(file: FileIO, start_line) -> list[rule]:
                 continue
 
             else:
-                # rule_list.append(rule(line))
-                rule_list.append(parse_rule(line))
+                rule_list.append(parse_rule(line, linenum))
 
     except parse_error as error:
         # add info about the rule and line that a parse error happend on to the exception and reraise it
         # don't use raise from as that creates a *new* exception, cluttering the output
         # only the caught exception actually matters, we just want to add context to it
-        augmented_error_str = "\n".join( (f"Line {line_counter}:", f"Rule \"{line.strip()}\":", error.args[0]) )
+        augmented_error_str = "\n".join( (f"Line {linenum}:", f"Rule \"{line.strip()}\":", error.args[0]) )
         error.args = (augmented_error_str,)
         raise
 
