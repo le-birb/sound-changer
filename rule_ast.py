@@ -222,15 +222,3 @@ def _parse_expression_list(stack: list[ast_node | _marker]) -> expression_list_n
     return expression_list_node(expressions)
 
 
-########################################################################################################################################################
-# ast visitors
-########################################################################################################################################################
-
-from warnings import warn
-from multipledispatch import dispatch
-
-class ast_visitor:
-    @dispatch(ast_node)
-    def visit(self, node: ast_node, *_args, **_kwargs) -> Any:
-        """"""
-        warn(f"Visitor {self.__class__.__name__} has no visit method for {node.__class__.__name__} type nodes")

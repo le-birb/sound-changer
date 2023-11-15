@@ -7,10 +7,10 @@ from matcher import match_rule
 
 from parsing import parse_rule_file
 from replacer import replace_matches
-from rule import rule
+from rule_ast import rule_node
 
 
-def apply_rules(rule_list: list[rule], word_list: list[str]) -> list[str]:
+def apply_rules(rule_list: list[rule_node], word_list: list[str]) -> list[str]:
 
     # iterate in this order, applying each rule to every word before moving on,
     # to keep open possibilities for pausing or halting execution at certain "times"

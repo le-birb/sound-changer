@@ -7,8 +7,7 @@ from itertools import chain, product
 import regex as re
 
 from regex_util import *
-from rule import rule
-from rule_ast import parse_tokens
+from rule_ast import rule_node, parse_tokens
 from rule_tokenizer import tokenize_rule
 from sound_class import sound_class
 
@@ -121,15 +120,15 @@ def parse_sound_classes(file: FileIO) -> int:
 ######################################################################################################################
 # rule stuff here
 
-def parse_rule(rule_str: str, linenum: int) -> rule:
+def parse_rule(rule_str: str, linenum: int) -> rule_node:
     tokens = tokenize_rule(rule_str, sound_class.class_map, sound_class.class_map["_ALL"])
 
     return parse_tokens(tokens)
 
 
 
-def parse_rules(file: FileIO, start_line: int) -> list[rule]:
-    rule_list: list[rule] = []
+def parse_rules(file: FileIO, start_line: int) -> list[rule_node]:
+    rule_list: list[rule_node] = []
 
     try:
         for linenum, line in enumerate(file, start = start_line):
