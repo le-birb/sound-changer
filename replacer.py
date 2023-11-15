@@ -4,6 +4,9 @@ from multipledispatch import dispatch
 from rule_ast_nodes import *
 from matcher import match_data
 
+#TODO: redo much of this in a different way maybe
+#  or just add global state
+
 #TODO: make better names for things
 
 @dispatch(ast_node)

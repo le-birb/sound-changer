@@ -8,6 +8,9 @@ from rule_ast_nodes import *
 
 from multipledispatch import dispatch
 
+#TODO: redo much of this in a different way maybe
+#  or just add global state
+
 #TODO: make better names for things
 @dataclass
 class match_data():

@@ -82,6 +82,8 @@ def _parse_sound_class(class_str: str, linenum: int) -> sound_class:
 
 
 def parse_sound_classes(file: FileIO) -> int:
+    class_map = {}
+
     try:
         # start with checking for sound class definitions
         for linenum, line in enumerate(file):
@@ -100,7 +102,7 @@ def parse_sound_classes(file: FileIO) -> int:
 
             else:
                 new_class = _parse_sound_class(line, linenum)
-                sound_class.class_map[new_class.name] = new_class
+                class_map[new_class.name] = new_class
 
     except parse_error as error:
         # add info about the rule and line that a parse error happend on to the exception and reraise it
@@ -111,10 +113,10 @@ def parse_sound_classes(file: FileIO) -> int:
         raise
 
     # define a convenience class of all defined sounds if not user-defined
-    if "_ALL" not in sound_class.class_map:
-        sound_class.class_map["_ALL"] = sound_class(sound_class.union(sound_class.class_map.values()), name = "_ALL")
+    if "_ALL" not in class_map:
+        class_map["_ALL"] = sound_class(sound_class.union(class_map.values()), name = "_ALL")
 
-    return linenum
+    return class_map, linenum
 
 
 ######################################################################################################################
@@ -156,6 +158,10 @@ def parse_rules(file: FileIO, start_line: int) -> list[rule_node]:
 # overall parsing
 
 def parse_rule_file(file):
-    offset = parse_sound_classes(file)
+    classes, offset = parse_sound_classes(file)
 
-    return parse_rules(file, offset)
+    rules = parse_rules(file, offset)
+
+    return rules, classes
+
+

@@ -1,5 +1,10 @@
 
-# inital simple goal
+classes:
+P=ptkbdg
+F=f,th,s,sh,h,v,z,zh
+C=P,F
+V=aeiou
+
 rules:
 
 a > e

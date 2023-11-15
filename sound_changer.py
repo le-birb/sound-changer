@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     lexicon = [word for word in [line.strip() for line in args.lex_file]]
     
-    rule_list = parse_rule_file(args.rules_file)
+    rule_list, sound_classes = parse_rule_file(args.rules_file)
 
     word_list = apply_rules(rule_list, lexicon)
 
