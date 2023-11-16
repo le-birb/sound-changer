@@ -19,6 +19,14 @@ class replacer:
     def _replace(self, node: sound_node, data: match_data) -> str:
         return node.sound
 
+    @dispatch(sound_class_node)
+    def _replace(self, node: sound_class_node, data: match_data) -> str:
+        matched_class = data.matched_sound_classes[self.sound_classes_seen]
+        self.sound_classes_seen += 1
+        replacer_class = node.sound_class
+        sound_idx = matched_class.index(match_data.contents)
+        return replacer_class[sound_idx]
+
     @dispatch(expression_node)
     def _replace(self, node: expression_node, data: match_data) -> str:
         return "".join(self._replace(n, data = data) for n in node.elements)

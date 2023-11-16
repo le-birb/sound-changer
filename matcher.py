@@ -58,6 +58,14 @@ def _match(node: sound_list_node, word: str, pos: int):
     for expr in node.expressions:
         yield from _match(expr, word = word, pos = pos)
 
+@dispatch(sound_class_node)
+def _match(node: sound_class_node, word: str, pos: int):
+    end_pos = pos + len(sound)
+    for sound in node.sound_class:
+        if word[pos: end_pos] == sound:
+            yield match_data(pos, end_pos, sound, node.sound_class)
+            break # only ever match a single sound
+
 @dispatch(expression_node)
 def _match(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
     # seek through the word, attempting to match each element successively
