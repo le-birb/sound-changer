@@ -1,10 +1,11 @@
 
 
 from typing import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from warnings import warn
 
 from rule_ast_nodes import * 
+from sound_class import sound_class
 
 from multipledispatch import dispatch
 
@@ -17,6 +18,7 @@ class match_data():
     start: int
     end: int
     contents: str = ""
+    matched_sound_classes: list[sound_class] = field(default_factory = list)
     
     def __str__(self):
         return self.contents
@@ -31,7 +33,8 @@ def merge_matches(first: match_data, second: match_data,/) -> match_data:
         return match_data(
                 start = first.start,
                 end = second.end,
-                contents = first.contents + second.contents
+                contents = first.contents + second.contents,
+                matched_sound_classes = first.matched_sound_classes + second.matched_sound_classes
             )
     else:
         raise ValueError("Matches must be consecutive to be merged!")

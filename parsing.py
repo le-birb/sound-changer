@@ -125,14 +125,14 @@ def parse_sound_classes(file: FileIO) -> int:
 ######################################################################################################################
 # rule stuff here
 
-def parse_rule(rule_str: str, linenum: int) -> rule_node:
-    tokens = tokenize_rule(rule_str, sound_class.class_map, sound_class.class_map["_ALL"])
+def parse_rule(rule_str: str, linenum: int, sound_classes: dict[str, sound_class]) -> rule_node:
+    tokens = tokenize_rule(rule_str, sound_classes, sound_classes["_ALL"])
 
-    return parse_tokens(tokens)
+    return parse_tokens(tokens, sound_classes)
 
 
 
-def parse_rules(file: FileIO, start_line: int) -> list[rule_node]:
+def parse_rules(file: FileIO, start_line: int, classes: dict[str, sound_class]) -> list[rule_node]:
     rule_list: list[rule_node] = []
 
     try:
@@ -144,7 +144,7 @@ def parse_rules(file: FileIO, start_line: int) -> list[rule_node]:
                 continue
 
             else:
-                rule_list.append(parse_rule(line, linenum))
+                rule_list.append(parse_rule(line, linenum, classes))
 
     except parse_error as error:
         # add info about the rule and line that a parse error happend on to the exception and reraise it
@@ -163,7 +163,7 @@ def parse_rules(file: FileIO, start_line: int) -> list[rule_node]:
 def parse_rule_file(file):
     classes, offset = parse_sound_classes(file)
 
-    rules = parse_rules(file, offset)
+    rules = parse_rules(file, offset, classes)
 
     return rules, classes
 

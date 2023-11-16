@@ -4,6 +4,7 @@ from __future__ import annotations
 # import dataclass with an underscore so it isn't caught in a * import
 from dataclasses import dataclass as _dataclass
 
+from sound_class import sound_class
 
 class ast_node:
     "base class for abstract syntax tree nodes"
@@ -14,7 +15,7 @@ class sound_node(ast_node):
 
 @_dataclass
 class sound_class_node(ast_node):
-    name: str
+    sound_class: sound_class
 
 @_dataclass
 class numbered_sound_class_node(ast_node):
