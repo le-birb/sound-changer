@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from io import FileIO
+from io import TextIOWrapper
 from itertools import chain, product
 
 import regex as re
@@ -81,7 +81,7 @@ def _parse_sound_class(class_str: str, linenum: int) -> sound_class:
     return new_class
 
 
-def parse_sound_classes(file: FileIO) -> int:
+def parse_sound_classes(file: TextIOWrapper) -> int:
     class_map = {}
 
     try:
@@ -132,7 +132,7 @@ def parse_rule(rule_str: str, linenum: int, sound_classes: dict[str, sound_class
 
 
 
-def parse_rules(file: FileIO, start_line: int, classes: dict[str, sound_class]) -> list[rule_node]:
+def parse_rules(file: TextIOWrapper, start_line: int, classes: dict[str, sound_class]) -> list[rule_node]:
     rule_list: list[rule_node] = []
 
     try:
@@ -160,11 +160,11 @@ def parse_rules(file: FileIO, start_line: int, classes: dict[str, sound_class]) 
 #########################################################################################################################
 # overall parsing
 
-def parse_rule_file(file):
+def parse_rule_file(file: TextIOWrapper):
     classes, offset = parse_sound_classes(file)
 
     rules = parse_rules(file, offset, classes)
 
-    return rules, classes
+    return rules
 
 
