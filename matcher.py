@@ -60,8 +60,8 @@ def _match(node: sound_list_node, word: str, pos: int):
 
 @dispatch(sound_class_node)
 def _match(node: sound_class_node, word: str, pos: int):
-    end_pos = pos + len(sound)
     for sound in node.sound_class:
+        end_pos = pos + len(sound)
         if word[pos: end_pos] == sound:
             yield match_data(pos, end_pos, sound, node.sound_class)
             break # only ever match a single sound
