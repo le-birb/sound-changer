@@ -1,4 +1,4 @@
-test/out
+test/*/output
 .vscode
 __pycache__
 languages
