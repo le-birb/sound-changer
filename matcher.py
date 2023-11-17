@@ -99,16 +99,3 @@ def match_rule(rule: change_node, word: str) -> list[match_data]:
             idx += 1
     return matches
 
-
-if __name__ == "__main__":
-    from rule_ast import parse_tokens
-    from rule_tokenizer import tokenize_rule
-    rule_1 = parse_tokens(tokenize_rule("abc(d) -> 123"))
-    rule_2 = parse_tokens(tokenize_rule("c{d,e} -> C"))
-
-    word = "abcdefabcgaceg"
-    matches_1 = match_rule(rule_1, word)
-    matches_2 = match_rule(rule_2, word)
-    print(matches_1)
-    print(matches_2)
-
