@@ -45,18 +45,15 @@ class sound_sequence(list):
         return sound_sequence("".join(s) for s in sound_sets)
 
 
-def _eval_class_expression(expression: str) -> sound_class | sound_sequence:
-    if expression in sound_class.class_map:
-        return sound_class.class_map[expression]
-
+def _eval_class_expression(expression: str, class_map: dict[str, sound_class]) -> sound_class | sound_sequence:
     # evaluate stuff in parentheses as a group: may remove this or change to have fuller parentheses support
-    elif re.fullmatch(r"\([^)]*\)", expression):
+    if re.fullmatch(r"\([^)]*\)", expression):
         return _eval_class_expression(expression[1:-1])
 
     elif "*" in expression:
         # rsplit here to evaluate from right to left, which will tend to put longer sounds first
         left, right = expression.rsplit("*", maxsplit = 1)
-        return _eval_class_expression(left) * _eval_class_expression(right)
+        return _eval_class_expression(left, class_map) * _eval_class_expression(right, class_map)
 
     else:
         if "," in expression:
@@ -64,16 +61,21 @@ def _eval_class_expression(expression: str) -> sound_class | sound_sequence:
         else:
             sound_list = list(expression)
 
+        for idx, elem in enumerate(sound_list):
+            if elem in class_map:
+                sound_list[idx:idx + len(elem)] = class_map[elem]
+                pass
+
         return sound_sequence(sound_list)
 
 
-def _parse_sound_class(class_str: str, linenum: int) -> sound_class:
+def _parse_sound_class(class_str: str, linenum: int, class_map: dict[str, sound_class]) -> sound_class:
     if "=" not in class_str:
         raise parse_error(f"Sound class definition on line {linenum} is not of the form:\nname=expression")
 
     name, expression = class_str.split('=', maxsplit = 1)
 
-    new_class = _eval_class_expression(expression)
+    new_class = _eval_class_expression(expression, class_map)
     if not isinstance(new_class, sound_class):
         new_class = sound_class(new_class)
     new_class.name = name
@@ -101,7 +103,7 @@ def parse_sound_classes(file: TextIOWrapper) -> int:
                 break
 
             else:
-                new_class = _parse_sound_class(line, linenum)
+                new_class = _parse_sound_class(line, linenum, class_map)
                 class_map[new_class.name] = new_class
 
     except parse_error as error:
