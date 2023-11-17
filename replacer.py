@@ -24,7 +24,7 @@ class replacer:
         matched_class = data.matched_sound_classes[self.sound_classes_seen]
         self.sound_classes_seen += 1
         replacer_class = node.sound_class
-        sound_idx = matched_class.index(match_data.contents)
+        sound_idx = matched_class.index(data.contents)
         return replacer_class[sound_idx]
 
     @dispatch(expression_node)
