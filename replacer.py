@@ -39,6 +39,7 @@ def replace_matches(word: str, matches: list[match_data], rule: change_node) -> 
     # keeps track of where in the word we're trying to fill in
     word_ptr = 0
     for m in filter(None, matches):
+        r.sound_classes_seen = 0
         new_str_pieces.append(word[word_ptr: m.start])
         repl = r._replace(rule.replacement[0], data = m)
         new_str_pieces.append(repl)
