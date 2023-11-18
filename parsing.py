@@ -118,9 +118,6 @@ def parse_sound_classes(file: TextIOWrapper) -> int:
     if "_ALL" not in class_map:
         class_map["_ALL"] = sound_class(sound_class().union(*class_map.values()), name = "_ALL")
 
-    # temporary backwards compatability thing for matcher.py
-    sound_class.class_map = class_map
-
     return class_map, linenum
 
 
