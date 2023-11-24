@@ -39,7 +39,7 @@ class word_border_node(ast_node):
     pass
 
 # convenience type alias
-element_node = sound_node | sound_list_node | sound_class_node | numbered_sound_class_node | optional_node | repetition_node
+element_node = sound_node | sound_list_node | sound_class_node | numbered_sound_class_node | optional_node | repetition_node | word_border_node
 
 @_dataclass
 class expression_node(ast_node):
