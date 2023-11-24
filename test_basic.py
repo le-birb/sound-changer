@@ -12,7 +12,7 @@ for sub_dir in test_folder.iterdir():
     rule_path = sub_dir/"rules"
     out_path = sub_dir/"output"
     expected_out_path = sub_dir/"expected_output"
-    if sub_dir.is_dir() and all(p.is_file() for p in (lex_path, rule_path, out_path, expected_out_path)):
+    if sub_dir.is_dir() and all(p.is_file() for p in (lex_path, rule_path, expected_out_path)):
         with open(lex_path, "r") as lex_file,\
                 open(rule_path, "r") as rule_file,\
                 open(out_path, "a") as out_file:
