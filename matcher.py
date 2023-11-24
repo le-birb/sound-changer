@@ -40,6 +40,9 @@ def merge_matches(first: match_data, second: match_data,/) -> match_data:
         raise ValueError("Matches must be consecutive to be merged!")
 
 
+# all calls to _match must have word and pos as keyword arguments due to how @dispatch
+# dispatches on ALL non-keyword arguments
+
 @dispatch(sound_node)
 def _match(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
     end_pos = pos + len(node.sound)
@@ -50,13 +53,13 @@ def _match(node: sound_node, word: str, pos: int) -> Iterable[match_data]:
 
 @dispatch(optional_node)
 def _match(node: optional_node, word: str, pos: int):
-    yield from _match(node.expression, word, pos)
+    yield from _match(node.expression, word = word, pos = pos)
     yield match_data(pos, pos) # 0-length match can be merged with other matches in a larger expression
 
 @dispatch(sound_list_node)
 def _match(node: sound_list_node, word: str, pos: int):
     for expr in node.expressions:
-        yield from _match(expr, word, pos)
+        yield from _match(expr, word = word, pos = pos)
 
 @dispatch(sound_class_node)
 def _match(node: sound_class_node, word: str, pos: int):
@@ -71,9 +74,9 @@ def _match(node: expression_node, word: str, pos: int) -> Iterable[match_data]:
     # seek through the word, attempting to match each element successively
     element = node.elements[0]
     result: match_data
-    for result in _match(element, word,  pos):
+    for result in _match(element, word = word,  pos = pos):
         if len(node.elements) > 1:
-            for m in _match(expression_node(node.elements[1:]), word, pos = result.end):
+            for m in _match(expression_node(node.elements[1:]), word = word, pos = result.end):
                 yield merge_matches(result, m)
         else:
             yield result
@@ -91,7 +94,7 @@ def match_rule(rule: change_node, word: str) -> list[match_data]:
     while idx < len(word):
         # the _match implementation will generate every possible match for the rule at a given position;
         # we only take the first (if any)
-        match_result: match_data = next(_match(rule.target[0], word, pos = idx), None)
+        match_result: match_data = next(_match(rule.target[0], word = word, pos = idx), None)
         if match_result:
             matches.append(match_result)
             idx = match_result.end
