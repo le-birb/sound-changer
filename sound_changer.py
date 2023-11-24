@@ -14,7 +14,16 @@ from rule_ast import rule_node
 def apply_rule(rule: rule_node, word: str) -> str:
     new_word = word
     for change in rule.changes:
-        matches = match_change(change, word)
+        naive_matches = match_change(change, word)
+        matches = []
+        for match in naive_matches:
+            # successfully match if none of the negative environments match, and
+            # there are no positive environments, or
+            # one of the positive environments matches 
+            if all(environment_works(env, word, match) for env in rule.negative_environments) \
+                        and (not rule.positive_environments \
+                        or any(environment_works(env, word, match) for env in rule.positive_environments)):
+                matches.append(match)
         if matches: 
             new_word = replace_matches(new_word, matches, change)
     return new_word

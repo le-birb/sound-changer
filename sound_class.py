@@ -22,6 +22,10 @@ class sound_class(ordered_set):
     def __hash__(self):
         return hash(repr(self))
 
+    def reverse(self):
+        """Returns a new sound class with every sound reversed"""
+        return sound_class(["".join(reversed(s)) for s in self], self.name)
+
     # TODO: move this functionality out of this class and into the sound class parser
     def __mul__(self, other):
         """Returns a sound class formed from combination of its sounds with the items in mult.

@@ -102,3 +102,37 @@ def match_change(change: change_node, word: str) -> list[match_data]:
             idx += 1
     return matches
 
+
+def environment_works(env: environment_node, word: str, match: match_data) -> bool:
+    word_before_match = word[:match.start]
+    # instead of writing reversed matching logic for pre-environments,
+    # we may reverse the environment and the part of the word of interest
+    # and do a forwards match
+    pre_match = next(_match(_reverse_node(env.pre_expression), word = "".join(reversed(word_before_match)), pos = 0), None)
+    # post-environments don't need anything fancy
+    post_match = next(_match(env.post_expression, word = word, pos = match.end), None)
+
+    return (bool(pre_match) == env.is_positive) and (bool(post_match) == env.is_positive)
+
+
+def _reverse_node(node: ast_node) -> ast_node:
+    match node:
+        case sound_node(sound = s):
+            return sound_node("".join(reversed(s)))
+        case expression_node(elements = elms):
+            rev_elms = [_reverse_node(e) for e in reversed(elms)]
+            return expression_node(rev_elms)
+        case sound_class_node(sound_class = c):
+            return sound_class_node(c.reverse())
+        case sound_list_node(expressions = exprs):
+            return sound_list_node([_reverse_node(e) for e in exprs])
+        case optional_node(expression = e):
+            return optional_node(_reverse_node(e))
+        case repetition_node(expression = e):
+            return repetition_node(_reverse_node(e))
+        case expression_list_node() as n:
+            return expression_list_node([_reverse_node(e) for e in reversed(n)])
+        case word_border_node():
+            return node
+        case _:
+            raise ValueError(f"Reversing not supported on nodes of type {type(node)}")
