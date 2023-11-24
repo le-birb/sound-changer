@@ -56,7 +56,7 @@ class expression_list_node(ast_node, list):
 class environment_node(ast_node):
     pre_expression: expression_node
     post_expression: expression_node
-    positive: bool = True
+    is_positive: bool = True
 
 @_dataclass
 class change_node(ast_node):

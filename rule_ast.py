@@ -167,7 +167,7 @@ def parse_tokens(tokens: Iterable[token], sound_classes: dict[str, sound_class])
             neg_envs: list[environment_node] = []
             while isinstance(parsing_stack[-1], environment_node):
                 env_node: environment_node = parsing_stack.pop()
-                if env_node.positive:
+                if env_node.is_positive:
                     pos_envs.append(env_node)
                 else:
                     neg_envs.append(env_node)
