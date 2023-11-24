@@ -1,0 +1,12 @@
+
+classes:
+
+P=ptk
+V=aeiou
+
+rules:
+
+y > z / x_x
+
+P > 0 / V_V
+
