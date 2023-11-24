@@ -154,7 +154,7 @@ def tokenize_rule(rule_str: str, sound_classes: Iterable[str] = [], defined_soun
         next_char_match = re.match(r"\X", rule_str, pos = current_pos)[0]
         
         if require_defined:
-            raise tokenization_error("unrecognized character '{}' found".format(next_char_match))
+            raise tokenization_error(f"unrecognized character '{next_char_match}' found")
         else:
             token_list.append(token(token_type.sound, next_char_match))
             current_pos += len(next_char_match)
