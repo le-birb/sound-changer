@@ -2,8 +2,9 @@
 from __future__ import annotations
 
 # import dataclass with an underscore so it isn't caught in a * import
-from dataclasses import dataclass as _dataclass
+from dataclasses import dataclass as _dataclass, field
 
+from sound_class import sound_class
 
 class ast_node:
     "base class for abstract syntax tree nodes"
@@ -14,7 +15,7 @@ class sound_node(ast_node):
 
 @_dataclass
 class sound_class_node(ast_node):
-    name: str
+    sound_class: sound_class
 
 @_dataclass
 class numbered_sound_class_node(ast_node):
@@ -38,7 +39,7 @@ class word_border_node(ast_node):
     pass
 
 # convenience type alias
-element_node = sound_node | sound_list_node | sound_class_node | numbered_sound_class_node | optional_node | repetition_node
+element_node = sound_node | sound_list_node | sound_class_node | numbered_sound_class_node | optional_node | repetition_node | word_border_node
 
 @_dataclass
 class expression_node(ast_node):
@@ -55,7 +56,7 @@ class expression_list_node(ast_node, list):
 class environment_node(ast_node):
     pre_expression: expression_node
     post_expression: expression_node
-    positive: bool = True
+    is_positive: bool = True
 
 @_dataclass
 class change_node(ast_node):
@@ -66,6 +67,6 @@ class change_node(ast_node):
 @_dataclass
 class rule_node(ast_node):
     changes: list[change_node]
-    positive_environments: list[environment_node] = None
-    negative_environments: list[environment_node] = None
+    positive_environments: list[environment_node] = field(default_factory = list)
+    negative_environments: list[environment_node] = field(default_factory = list)
 

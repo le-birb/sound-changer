@@ -1,0 +1,19 @@
+
+classes:
+G=nml
+A=abc
+Z=xyz
+T=ptk
+D=bdg
+P=T,D
+
+rules:
+
+G > 1
+
+P > 2
+
+A > Z
+
+
+

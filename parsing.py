@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 
-from io import FileIO
+from io import TextIOWrapper
 from itertools import chain, product
 
 import regex as re
@@ -45,18 +45,15 @@ class sound_sequence(list):
         return sound_sequence("".join(s) for s in sound_sets)
 
 
-def _eval_class_expression(expression: str) -> sound_class | sound_sequence:
-    if expression in sound_class.class_map:
-        return sound_class.class_map[expression]
-
+def _eval_class_expression(expression: str, class_map: dict[str, sound_class]) -> sound_class | sound_sequence:
     # evaluate stuff in parentheses as a group: may remove this or change to have fuller parentheses support
-    elif re.fullmatch(r"\([^)]*\)", expression):
+    if re.fullmatch(r"\([^)]*\)", expression):
         return _eval_class_expression(expression[1:-1])
 
     elif "*" in expression:
         # rsplit here to evaluate from right to left, which will tend to put longer sounds first
         left, right = expression.rsplit("*", maxsplit = 1)
-        return _eval_class_expression(left) * _eval_class_expression(right)
+        return _eval_class_expression(left, class_map) * _eval_class_expression(right, class_map)
 
     else:
         if "," in expression:
@@ -64,16 +61,21 @@ def _eval_class_expression(expression: str) -> sound_class | sound_sequence:
         else:
             sound_list = list(expression)
 
+        for idx, elem in enumerate(sound_list):
+            if elem in class_map:
+                sound_list[idx:idx + len(elem)] = class_map[elem]
+                pass
+
         return sound_sequence(sound_list)
 
 
-def _parse_sound_class(class_str: str, linenum: int) -> sound_class:
+def _parse_sound_class(class_str: str, linenum: int, class_map: dict[str, sound_class]) -> sound_class:
     if "=" not in class_str:
         raise parse_error(f"Sound class definition on line {linenum} is not of the form:\nname=expression")
 
     name, expression = class_str.split('=', maxsplit = 1)
 
-    new_class = _eval_class_expression(expression)
+    new_class = _eval_class_expression(expression, class_map)
     if not isinstance(new_class, sound_class):
         new_class = sound_class(new_class)
     new_class.name = name
@@ -81,7 +83,7 @@ def _parse_sound_class(class_str: str, linenum: int) -> sound_class:
     return new_class
 
 
-def parse_sound_classes(file: FileIO) -> int:
+def parse_sound_classes(file: TextIOWrapper) -> int:
     class_map = {}
 
     try:
@@ -101,7 +103,7 @@ def parse_sound_classes(file: FileIO) -> int:
                 break
 
             else:
-                new_class = _parse_sound_class(line, linenum)
+                new_class = _parse_sound_class(line, linenum, class_map)
                 class_map[new_class.name] = new_class
 
     except parse_error as error:
@@ -114,10 +116,7 @@ def parse_sound_classes(file: FileIO) -> int:
 
     # define a convenience class of all defined sounds if not user-defined
     if "_ALL" not in class_map:
-        class_map["_ALL"] = sound_class(sound_class.union(class_map.values()), name = "_ALL")
-
-    # temporary backwards compatability thing for matcher.py
-    sound_class.class_map = class_map
+        class_map["_ALL"] = sound_class(sound_class().union(*class_map.values()), name = "_ALL")
 
     return class_map, linenum
 
@@ -125,14 +124,14 @@ def parse_sound_classes(file: FileIO) -> int:
 ######################################################################################################################
 # rule stuff here
 
-def parse_rule(rule_str: str, linenum: int) -> rule_node:
-    tokens = tokenize_rule(rule_str, sound_class.class_map, sound_class.class_map["_ALL"])
+def parse_rule(rule_str: str, linenum: int, sound_classes: dict[str, sound_class]) -> rule_node:
+    tokens = tokenize_rule(rule_str, sound_classes, sound_classes["_ALL"])
 
-    return parse_tokens(tokens)
+    return parse_tokens(tokens, sound_classes)
 
 
 
-def parse_rules(file: FileIO, start_line: int) -> list[rule_node]:
+def parse_rules(file: TextIOWrapper, start_line: int, classes: dict[str, sound_class]) -> list[rule_node]:
     rule_list: list[rule_node] = []
 
     try:
@@ -144,7 +143,7 @@ def parse_rules(file: FileIO, start_line: int) -> list[rule_node]:
                 continue
 
             else:
-                rule_list.append(parse_rule(line, linenum))
+                rule_list.append(parse_rule(line, linenum, classes))
 
     except parse_error as error:
         # add info about the rule and line that a parse error happend on to the exception and reraise it
@@ -160,11 +159,11 @@ def parse_rules(file: FileIO, start_line: int) -> list[rule_node]:
 #########################################################################################################################
 # overall parsing
 
-def parse_rule_file(file):
+def parse_rule_file(file: TextIOWrapper):
     classes, offset = parse_sound_classes(file)
 
-    rules = parse_rules(file, offset)
+    rules = parse_rules(file, offset, classes)
 
-    return rules, classes
+    return rules
 
 

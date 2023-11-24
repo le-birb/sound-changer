@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import enum
-from typing import Any, Iterable
+from typing import Iterable
 
 from rule_ast_nodes import *
 from rule_tokenizer import token, token_type
@@ -23,7 +23,7 @@ class _marker(enum.Enum):
     stack_start = enum.auto()
 
 # TODO: add checks for syntax errors
-def parse_tokens(tokens: Iterable[token]) -> rule_node:
+def parse_tokens(tokens: Iterable[token], sound_classes: dict[str, sound_class]) -> rule_node:
     parsing_stack: list[ast_node | _marker] = [_marker.stack_start]
 
     finished_changes = False
@@ -32,7 +32,7 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
         if token.type is token_type.sound:
             parsing_stack.append(sound_node(token.string))
         elif token.type is token_type.sound_class:
-            parsing_stack.append(sound_class_node(token.string))
+            parsing_stack.append(sound_class_node(sound_classes[token.string]))
         elif token.type is token_type.sound_class_number:
             number = int(token.string)
             class_node = parsing_stack.pop()
@@ -167,7 +167,7 @@ def parse_tokens(tokens: Iterable[token]) -> rule_node:
             neg_envs: list[environment_node] = []
             while isinstance(parsing_stack[-1], environment_node):
                 env_node: environment_node = parsing_stack.pop()
-                if env_node.positive:
+                if env_node.is_positive:
                     pos_envs.append(env_node)
                 else:
                     neg_envs.append(env_node)

@@ -1,5 +1,6 @@
 
 from __future__ import annotations
+from dataclasses import dataclass
 
 from itertools import chain, product
 from typing import Iterable
@@ -10,33 +11,20 @@ from ordered_set import OrderedSet as ordered_set
 
 class sound_class(ordered_set):
 
-    class_map: dict[str, sound_class] = {}
-
-    def __init__(self, sound_list: Iterable[str | sound_class] = None, name: str = "") -> None:
+    def __init__(self, sound_list: Iterable[str] = None, name: str = "") -> None:
         if sound_list:
             super().__init__(sound_list)
         else:
             super().__init__()
         self.name = name
 
-    def __str__(self):
-        return self.name
-    
-    def __repr__(self):
-        return self.name + "=" + ",".join(sound for sound in self)
-
-    def __iter__(self):
-        """Overrides the ordered set's default iter method so that all member sound classes are iterated through too.
-        The result is that `for sound in sound_class` will go through every sound sound_class would match."""
-        for member in super().__iter__():
-            if isinstance(member, sound_class):
-                yield from member
-            else:
-                yield member
-
     # we need this so that sound classes can be added to themselves, since set members must be hashable
     def __hash__(self):
         return hash(repr(self))
+
+    def reverse(self):
+        """Returns a new sound class with every sound reversed"""
+        return sound_class(["".join(reversed(s)) for s in self], self.name)
 
     # TODO: move this functionality out of this class and into the sound class parser
     def __mul__(self, other):
@@ -64,37 +52,3 @@ class sound_class(ordered_set):
         new_sounds = list("".join(s) for s in sound_sets)
         return sound_class(new_sounds)
 
-    def get_string_matches(self) -> list[str]:
-        """DEPRECATED: just iterate though the sounds and escape them there if you need it
-        
-        Returns a list of regex-escaped strings that correspond to the sounds of the class"""
-
-        string_matches = []
-
-        for member in self:
-            if isinstance(member, str):
-                string_matches.append(re.escape(member))
-
-            elif isinstance(member, sound_class):
-                string_matches += member.get_string_matches()
-
-        return string_matches
-
-    def get_regex(self)-> str:
-        """DEPRECATED
-        
-        Returns a regular expression string that matches any member of the class"""
-
-        string_matches = self.get_string_matches()
-        
-        # any sound represented by more than one character prevents us from
-        # using a regex character class to match
-        if any([len(string) > 1 for string in string_matches]):
-            match_body = "|".join(string_matches)
-            regex = "(" + match_body + ")"
-        
-        else:
-            match_body = "".join(string_matches)
-            regex = "[" + match_body + "]"
-        
-        return regex
