@@ -56,7 +56,7 @@ class tokenization_error(Exception):
     pass
 
 _arrows = {"=>", "->", ">", "→"}
-_null_sounds = {"∅"}
+_null_sounds = {"∅", "0"}
 _special_chars = {"/", "/!", "_", "...", ",", " ", "#", "(", ")", "{", "}", "[", "]"} | _arrows | _null_sounds 
 
 def _tokenize_special_char(string: str) -> token:
