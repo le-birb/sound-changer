@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 # import dataclass with an underscore so it isn't caught in a * import
-from dataclasses import dataclass as _dataclass
+from dataclasses import dataclass as _dataclass, field
 
 from sound_class import sound_class
 
@@ -67,6 +67,6 @@ class change_node(ast_node):
 @_dataclass
 class rule_node(ast_node):
     changes: list[change_node]
-    positive_environments: list[environment_node] = None
-    negative_environments: list[environment_node] = None
+    positive_environments: list[environment_node] = field(default_factory = list)
+    negative_environments: list[environment_node] = field(default_factory = list)
 
