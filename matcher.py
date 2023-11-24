@@ -88,13 +88,13 @@ def _match(node: ast_node, word: str, pos: int):
     yield match_data(pos, pos)
 
 
-def match_rule(rule: change_node, word: str) -> list[match_data]:
+def match_change(change: change_node, word: str) -> list[match_data]:
     matches: list[match_data] = []
     idx = 0
     while idx < len(word):
         # the _match implementation will generate every possible match for the rule at a given position;
         # we only take the first (if any)
-        match_result: match_data = next(_match(rule.target[0], word = word, pos = idx), None)
+        match_result: match_data = next(_match(change.target[0], word = word, pos = idx), None)
         if match_result:
             matches.append(match_result)
             idx = match_result.end

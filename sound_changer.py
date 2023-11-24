@@ -4,25 +4,29 @@ from __future__ import annotations
 import argparse
 from io import TextIOWrapper
 from time import time
-from matcher import match_rule
+from matcher import environment_works, match_change
 
 from parsing import parse_rule_file
 from replacer import replace_matches
 from rule_ast import rule_node
 
 
-def apply_rules(rule_list: list[rule_node], word_list: list[str]) -> list[str]:
+def apply_rule(rule: rule_node, word: str) -> str:
+    new_word = word
+    for change in rule.changes:
+        matches = match_change(change, word)
+        if matches: 
+            new_word = replace_matches(new_word, matches, change)
+    return new_word
 
+
+def apply_rules(rule_list: list[rule_node], word_list: list[str]) -> list[str]:
     # iterate in this order, applying each rule to every word before moving on,
     # to keep open possibilities for pausing or halting execution at certain "times"
     # within a rule list
     for rule in rule_list:
-        for change in rule.changes:
-            for idx, word in enumerate(word_list):
-                matches = match_rule(change, word)
-                if matches:
-                    word_list[idx] = replace_matches(word, matches, change)
-
+        for idx, word in enumerate(word_list):
+            word_list[idx] = apply_rule(rule, word)
     return word_list
 
 
