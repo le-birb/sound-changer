@@ -88,13 +88,16 @@ def _match(node: ast_node, word: str, pos: int):
     yield match_data(pos, pos)
 
 
+def get_first_match(expression: expression_node, word: str, pos: int) -> match_data:
+    return next(_match(expression, word = word, pos = pos), None)
+
 def match_change(change: change_node, word: str) -> list[match_data]:
     matches: list[match_data] = []
     idx = 0
     while idx < len(word):
         # the _match implementation will generate every possible match for the rule at a given position;
         # we only take the first (if any)
-        match_result: match_data = next(_match(change.target[0], word = word, pos = idx), None)
+        match_result: match_data = get_first_match(change.target[0], word, idx)
         if match_result:
             matches.append(match_result)
             idx = match_result.end
@@ -108,9 +111,9 @@ def environment_works(env: environment_node, word: str, match: match_data) -> bo
     # instead of writing reversed matching logic for pre-environments,
     # we may reverse the environment and the part of the word of interest
     # and do a forwards match
-    pre_match = next(_match(_reverse_node(env.pre_expression), word = "".join(reversed(word_before_match)), pos = 0), None)
+    pre_match = get_first_match(_reverse_node(env.pre_expression), word = "".join(reversed(word_before_match)), pos = 0)
     # post-environments don't need anything fancy
-    post_match = next(_match(env.post_expression, word = word, pos = match.end), None)
+    post_match = get_first_match(env.post_expression, word, pos = match.end)
 
     return (bool(pre_match) == env.is_positive) and (bool(post_match) == env.is_positive)
 
