@@ -111,6 +111,7 @@ def environment_works(env: environment_node, word: str, match: match_data) -> bo
     # instead of writing reversed matching logic for pre-environments,
     # we may reverse the environment and the part of the word of interest
     # and do a forwards match
+    # TODO: fix this breaking with multigraphs
     pre_match = get_first_match(_reverse_node(env.pre_expression), word = "".join(reversed(word_before_match)), pos = 0)
     # post-environments don't need anything fancy
     post_match = get_first_match(env.post_expression, word, pos = match.end)
