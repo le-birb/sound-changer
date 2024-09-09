@@ -12,7 +12,7 @@ class replacer:
 
     @dispatch(ast_node)
     def _replace(self, node: ast_node, data: match_data) -> str:
-        self._replace(node, match = match_data)
+        self._replace(node, data = data)
         return ""
 
     @dispatch(sound_node)
