@@ -14,6 +14,7 @@ class _marker(enum.Enum):
     space = enum.auto()
     comma = enum.auto()
 
+    # only one marker for (left) delimiters, as right delimiters immeditately trigger a backtrack
     paren = enum.auto()
     brace = enum.auto()
 
