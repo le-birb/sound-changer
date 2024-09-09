@@ -1,6 +1,6 @@
 
 
-from typing import Iterable
+from typing import Iterable, Optional
 from dataclasses import dataclass, field
 from warnings import warn
 
@@ -22,11 +22,6 @@ class match_data():
     
     def __str__(self):
         return self.contents
-
-    def __bool__(self):
-        # any zero-length data should be falsey,
-        # as it is a container-ish type
-        return self.start != self.end
 
 def merge_matches(first: match_data, second: match_data,/) -> match_data:
     if first.end == second.start:
@@ -88,7 +83,7 @@ def _match(node: ast_node, word: str, pos: int):
     yield match_data(pos, pos)
 
 
-def get_first_match(expression: expression_node, word: str, pos: int) -> match_data:
+def get_first_match(expression: expression_node, word: str, pos: int) -> Optional[match_data]:
     return next(_match(expression, word = word, pos = pos), None)
 
 def match_change(change: change_node, word: str) -> list[match_data]:
@@ -98,7 +93,7 @@ def match_change(change: change_node, word: str) -> list[match_data]:
         # the _match implementation will generate every possible match for the rule at a given position;
         # we only take the first (if any)
         match_result: match_data = get_first_match(change.target[0], word, idx)
-        if match_result:
+        if match_result is not None:
             matches.append(match_result)
             idx = match_result.end
         else:
